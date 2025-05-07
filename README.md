@@ -1,1 +1,2 @@
-# WSP_Grad_Project
+# Project documentation
+# Check `TODO.md` file for tasks.
