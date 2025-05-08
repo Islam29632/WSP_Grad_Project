@@ -6,10 +6,12 @@ from dotenv import load_dotenv
 import pandas as pd
 # Load environment variables from .env file
 from WSP.config import load_key
+from typing import Optional
 
 api_key = load_key()
 
 genai.configure(api_key=api_key)
+local_loc = r"C:\Users\Ostor\PycharmProjects\PythonProject\.venv\WSP\World-Stock-Prices-Dataset.csv"
 #Note All the Agents are built almost the same but the configurations only different.
 #Creating Class Collectorgent
 class Collectorgent(Agent):
@@ -18,8 +20,8 @@ class Collectorgent(Agent):
         gemini_llm = LLM(model = 'gemini/gemini-1.5-pro',api_key = api_key)
         #Setting the parametter to be used
         super().__init__(
-            role = "Expert in collecting, cleaning, and structuring raw data into a usable DataFrame.", #what the agent acts like
-            goal = "Ensure high-quality, well-formatted, and analysis-ready data for downstream tasks.", #mission
+            role = "Stock Data Collector", #what the agent acts like
+            goal = "Fetch Companies Stocks", #mission
             backstory = #agent characteristics
                "You are a seasoned data engineer and analyst with years of experience in collecting raw data from csv files. "
                "cleaning inconsistencies, handling missing values, and converting it into structured formats."
@@ -29,29 +31,28 @@ class Collectorgent(Agent):
             ,
             llm = gemini_llm #LLM model -> Gemini
                     )
+    def  data_loc(self):
+        return local_loc
 
-    def collect(self, data_frame: pd.DataFrame) -> pd.DataFrame:
-        #Agent Function -> what will it generate
-        prompt = f"""
-        You are a data preprocessing expert. Your task is to collect relevant data from the following source: {data_frame}, 
-        then clean and structure it into a well-formed tabular dataset (DataFrame).
-        Instructions:
-            1. Collect raw data from dataframe.
-            2. Clean the data: remove duplicates, handle missing/null values, fix data types.
-            3. Normalize and encode categorical values by  Label Encoding.
-            4. Output the final data as a Pandas DataFrame code block, ready for use in machine learning or analysis.
-        Output :
-            1. The data processed as a Pandas DataFrame code block, ready for use in machine learning or analysis.
-                    """
-        #getting the LLM model response
-        llm_advice = self.__generate_with_gemini(prompt)
-        return llm_advice
+    def collect(self, targets: Optional[list], col_name="Industry_Tag") -> pd.DataFrame:
+        # Initialize 'data' as an empty DataFrame
+        data = pd.DataFrame()
+        df = pd.read_csv(self.data_loc())
+        if targets:
+            for target in targets:
+                if target in df[col_name].unique():
+                    # Concatenate only if target is found in the 'col_name' column
+                    data = pd.concat([data, df[df[col_name] == target]], ignore_index=True)
+                else:
+                    print(f"Target '{target}' Not Found")
+        else:
+            # Select specific columns (Note: Correct column selection syntax)
+            data = df[['Industry_Tag', 'Date', 'Open', 'High', 'Low', 'Close', 'Volume']]
 
-    def __generate_with_gemini(self, prompt: str) -> str:
-        try:
-            #Gemini Configurations
-            model = genai.GenerativeModel("gemini-1.5-pro")
-            response = model.generate_content(prompt)
-            return response.text.strip() if response.text else "No response from Gemini LLM"
-        except Exception as e:
-            return f"Gemini LLM error: {str(e)}"
+        return data
+
+    def preprocess(self, df) -> pd.DataFrame:
+        df.drop('Capital Gains',axis=1,inplace=True)
+        df.dropna(inplace=True)  #Can be ignored
+        df['Date'] = pd.to_datetime(df['Date'], utc=True)
+        return df
