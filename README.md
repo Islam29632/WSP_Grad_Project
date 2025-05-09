@@ -39,15 +39,15 @@ We use SQLite to store user data and activity logs in two main tables:
 ## User Interface
 
 ### Login Page
-<img src="resources/Login_page.jpg" title="Title" alt="title" hight="50%">
+<img src="resources/Login_page.jpg" title="Title" alt="title" width="35%">
 The login page provides a secure entry point to the application. Users can enter their credentials which are verified against the hashed passwords in the database.
 
 ### Sign Up Page
-<img src="resources/Sign_Up_page.jpg" title="Title" alt="title" hight="50%">
+<img src="resources/Sign_Up_page.jpg" title="Title" alt="title" width="35%">
 New users can create an account through the sign-up page. The system validates the input and securely stores the credentials.
 
 ### Main Dashboard
-<img src="resources/Main_page.jpg" title="Title" alt="title" hight="50%">
+<img src="resources/Main_page.jpg" title="Title" alt="title" width="35%">
 After successful authentication, users are presented with the main dashboard where they can access the application's features.
 
 # How to contribute
