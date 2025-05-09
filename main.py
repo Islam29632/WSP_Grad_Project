@@ -1,36 +1,36 @@
-import os
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
-import pandas as pd
-from backend.agents.DC_Agent import Collectorgent
+import os
+
+# Import routes
+from backend.routes import auth
+
+# Load environment variables
+load_dotenv()
+
+# Initialize FastAPI app
+app = FastAPI(
+    title="Stock Market Analysis Platform",
+    description="API for stock market data analysis and user management",
+    version="1.0.0"
+)
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], 
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include authentication routes
+app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
+
+# Health check endpoint
 
 
-def main():
-    # Load environment variables
-    load_dotenv()
-
-    try:
-        # Initialize the Collector Agent
-        collector = Collectorgent()
-        print("✓ Successfully initialized Collector Agent")
-        try:
-            all_data = collector.collect(targets=None)
-            print("✓ Shape of all data:", all_data.shape)
-            print("\nSample of all data:")
-            print(all_data.head())
-
-            # Test preprocessing
-            print("\n🔧 Testing preprocessing:")
-            processed_data = collector.preprocess(all_data.copy())
-            print("✓ Shape after preprocessing:", processed_data.shape)
-            print("\nSample of processed data:")
-            print(processed_data.head())
-            
-        except Exception as e:
-            print("❌ Error collecting/processing all data:", str(e))
-
-    except Exception as e:
-        print("❌ Error initializing Collector Agent:", str(e))
-
-
-if __name__ == "__main__":
-    main()
+@app.get("/")
+async def root():
+    return {"status": "healthy", "message": "Stock Market Analysis Platform API"}

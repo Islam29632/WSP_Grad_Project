@@ -30,9 +30,22 @@ git commit -m "your message"
 git push
 ```
 
-# Run streamlit app
+# Running the Application
+
+1. Start the API server first:
+# From the project root directory
 ```bash
+uvicorn main:app
+```
+The API server will start on http://localhost:8000
+
+2. Start the Streamlit app:
+```bash
+# From the frontend directory
 streamlit run app.py
 ```
+The Streamlit app will be available at http://localhost:8501
+
+Note: Make sure to start the API server before running the Streamlit app, as the frontend depends on the API being available.
 
 # Check `TODO.md` file for tasks.
