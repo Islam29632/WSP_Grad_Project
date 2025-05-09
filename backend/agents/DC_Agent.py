@@ -4,9 +4,9 @@ import google.generativeai as genai
 import os
 from dotenv import load_dotenv
 import pandas as pd
-# Load environment variables from .env file
 from typing import Optional
 
+#Loading the environment variables
 load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY")
 
