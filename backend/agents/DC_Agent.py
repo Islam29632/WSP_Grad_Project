@@ -38,10 +38,10 @@ class Collectorgent(Agent):
             ,
             llm = gemini_llm #LLM model -> Gemini
                     )
-    def  data_loc(self):
+    def data_loc(self):
         return local_loc
 
-    def collect(self, targets: Optional[list], col_name="Industry_Tag") -> pd.DataFrame:
+    def collect(self, targets: Optional[list], col_name="Ticker") -> pd.DataFrame:
         # Initialize 'data' as an empty DataFrame
         data = pd.DataFrame()
         df = pd.read_csv(self.data_loc())
@@ -58,8 +58,41 @@ class Collectorgent(Agent):
 
         return data
 
-    def preprocess(self, df) -> pd.DataFrame:
-        df.drop('Capital Gains',axis=1,inplace=True)
-        df.dropna(inplace=True)  #Can be ignored
-        df['Date'] = pd.to_datetime(df['Date'], utc=True)
+    def preprocess(self, df: pd.DataFrame, tickers: Optional[list] = None, min_rows: int = 20) -> pd.DataFrame:
+        # Step 1: Standardize column names
+        df.columns = [col.strip().lower().replace(" ", "_") for col in df.columns]
+
+        # Step 2: Filter for specific tickers
+        if tickers:
+            tickers = [t.upper() for t in tickers]
+            df = df[df['ticker'].isin(tickers)]
+
+        # Step 3: Convert 'Date' to datetime and drop rows with missing 'Close' values
+        df['date'] = pd.to_datetime(df['date'], utc=True)
+        df = df.dropna(subset=['close'])
+
+        # Step 4: Sort by 'ticker' and 'date', then fill missing values by ticker
+        df = df.sort_values(by=['ticker', 'date']).reset_index(drop=True)
+        df = df.groupby('ticker').apply(lambda g: g.ffill().bfill()).reset_index(drop=True)
+
+        # Step 5: Feature engineering - Use `transform` instead of `apply`
+        df['sma_5'] = df.groupby('ticker')['close'].transform(lambda x: x.rolling(window=5).mean())
+        df['sma_10'] = df.groupby('ticker')['close'].transform(lambda x: x.rolling(window=10).mean())
+        df['sma_21'] = df.groupby('ticker')['close'].transform(lambda x: x.rolling(window=21).mean())
+        df['std_5'] = df.groupby('ticker')['close'].transform(lambda x: x.rolling(window=5).std())
+        df['return'] = df.groupby('ticker')['close'].pct_change()
+
+        # Step 6: Drop tickers with fewer than 'min_rows' records
+        valid_tickers = df['ticker'].value_counts()[lambda x: x >= min_rows].index
+        df = df[df['ticker'].isin(valid_tickers)]
+
+        # Step 7: Drop rows with remaining NaNs in the features
+        df = df.dropna(subset=['sma_5', 'sma_10', 'sma_21', 'std_5', 'return'])
+
+        # Step 8: Select relevant columns
+        df = df[
+            ['date', 'ticker', 'open', 'high', 'low', 'close', 'volume', 'industry_tag', 'sma_5', 'sma_10', 'sma_21',
+             'std_5', 'return']]
+
         return df
+
