@@ -87,6 +87,7 @@ class DataProcessorAgent(Agent):
         sector_summary.to_json("outputs/sector_summary.json", indent=4, orient="records")
 
         return "Sector and ticker statistics saved to outputs/"
+        
     def forecast_prices(self, tickers=None) -> str:
         results = train_and_forecast(tickers)
 
