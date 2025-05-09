@@ -94,5 +94,7 @@ class Collectorgent(Agent):
             ['date', 'ticker', 'open', 'high', 'low', 'close', 'volume', 'industry_tag', 'sma_5', 'sma_10', 'sma_21',
              'std_5', 'return']]
 
-        return df
+        OUTPUT_PATH ='data/processed/cleaned_stock_data.csv'
+        os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
+        df.to_csv(OUTPUT_PATH, index=False)
 
