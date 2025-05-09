@@ -27,9 +27,11 @@ local_loc = os.path.join(project_root, "backend", "database", "World-Stock-Price
 
 class Collectorgent(Agent):
     def __init__(self):
-
-        gemini_llm = LLM(model='gemini/gemini-1.5-pro', api_key=api_key)
-        # Setting the parametter to be used
+        gemini_pro = "gemini/gemini-1.5-pro" # has 15 requests limit per day
+        gemini_flash = "gemini/gemini-2.0-flash" # has 1500 requests limit per day
+        gemini_llm = LLM(model=gemini_flash, api_key=api_key)
+        
+        # Setting the parameter to be used
         super().__init__(
             role="Stock Data Collector",  # what the agent acts like
             goal="Fetch Companies Stocks",  # mission

@@ -30,4 +30,9 @@ git commit -m "your message"
 git push
 ```
 
+# Run streamlit app
+```bash
+streamlit run app.py
+```
+
 # Check `TODO.md` file for tasks.
