@@ -7,7 +7,7 @@ import pandas as pd
 # Load environment variables from .env file
 from typing import Optional
 
-load_dotenv("config.env")
+load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY")
 
 genai.configure(api_key=api_key)
@@ -20,7 +20,7 @@ local_loc = os.path.join(project_root, "backend", "database", "World-Stock-Price
 class Collectorgent(Agent):
     def __init__(self):
 
-                #Setting the parametter to be used
+        #Setting the parametter to be used
         gemini_pro = "gemini/gemini-1.5-pro" # has 15 requests limit per day
         gemini_flash = "gemini/gemini-2.0-flash" # has 1500 requests limit per day
         gemini_llm = LLM(model=gemini_flash, api_key=api_key)
