@@ -1,7 +1,7 @@
 - [ ] CrewAI Agents
 
   - [x] Agent 1 – Data Collector (10 pts)
-  - [ ] Agent 2 – Data Processor (20 pts)
+  - [x] Agent 2 – Data Processor (20 pts)
   - [ ] Agent 3 – LLM Recommendation Generator (10 pts)
 
 <hr/>
@@ -10,6 +10,7 @@
 - [ ] Forecasting Accuracy (10 pts)
 - [x] Streamlit Frontend: UI/UX (10 pts)
 - [ ] PDF Report Generation (5 pts)
+- [ ] bonus - RAG Simple Implementation 
 - [ ] Presentation Video (–)
 
 <hr/>
