@@ -1,108 +1,111 @@
-# llm_recommendation_generator.py
-import json
 import os
+import json
+import google.generativeai as genai
 from crewai import Agent
-from crewai.llm import LLM
 from dotenv import load_dotenv
 
-# Load environment variables
+# Load API key from environment
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+genai.configure(api_key=GEMINI_API_KEY)
 
-class LLMRecommendationGenerator(Agent):
+class LLMRecommendationAgent(Agent):
     def __init__(self):
-        dummy_llm = LLM(model="gemini/gemini-1.5-flash", api_key=GEMINI_API_KEY)
-        
         super().__init__(
-            role="Financial Market Analyst",
-            goal="Generate actionable investment recommendations based on technical analysis and forecasts",
+            role="LLM Financial Advisor",
+            goal="Provide Buy/Hold/Sell recommendations using price forecasts and stock analytics",
             backstory=(
-                "With years of experience in financial markets and AI-powered analysis, this agent specializes in "
-                "synthesizing complex financial data into clear, actionable recommendations. Combining technical "
-                "analysis skills with deep learning insights, it provides institutional-grade recommendations "
-                "tailored to different investment horizons and risk profiles."
+                "An expert LLM-powered advisor trained on market analytics and risk-based decision making. "
+                "Leverages Google Gemini to synthesize structured data into investor-grade advice."
             ),
-            llm=dummy_llm,
-            allow_delegation=False
+            llm=None  # Not used here, since we use genai directly
         )
-        
-    def _load_analysis_data(self):
-        """Load all the processed data from previous agents"""
-        try:
-            with open("outputs/ticker_analysis.json", "r") as f:
-                ticker_analysis = json.load(f)
-            with open("outputs/sector_summary.json", "r") as f:
-                sector_summary = json.load(f)
-            with open("outputs/forecast_results.json", "r") as f:
-                forecast_results = json.load(f)
-            return ticker_analysis, sector_summary, forecast_results
-        except Exception as e:
-            print(f"Error loading analysis data: {e}")
-            return {}, [], {}
-    
-    def _build_prompt(self, ticker, ticker_data, sector_data, forecast_data):
-        """Construct a detailed prompt for the LLM"""
-        prompt = (
-            f"Analyze the following investment case for {ticker} and provide a detailed recommendation:\n\n"
-            f"COMPANY FUNDAMENTALS:\n"
-            f"- Highest Price: ${ticker_data.get('highest_price', 'N/A'):.2f}\n"
-            f"- Lowest Price: ${ticker_data.get('lowest_price', 'N/A'):.2f}\n"
-            f"- 2020 Growth: {ticker_data.get('growth_2020_percent', 'N/A'):.2f}%\n"
-            f"- Sector: {ticker_data.get('sector', 'N/A')}\n\n"
-            
-            f"SECTOR PERFORMANCE:\n"
-            f"- Average 2020 Growth: {next((s['growth_2020_percent'] for s in sector_data if s['sector'] == ticker_data.get('sector')), 'N/A')}%\n\n"
-            
-            f"FORECAST RESULTS:\n"
-            f"- Actual Price (Jan 2025): ${forecast_data.get('actual_price', 'N/A'):.2f}\n"
-            f"- LSTM Forecast: ${forecast_data['LSTM']['forecast']:.2f} (RMSE: {forecast_data['LSTM']['rmse']:.2f})\n"
-            f"- MLP Forecast: ${forecast_data['MLP']['forecast']:.2f} (RMSE: {forecast_data['MLP']['rmse']:.2f})\n\n"
-            
-            "ANALYSIS REQUEST:\n"
-            "1. Compare the forecasts against the actual price and sector performance\n"
-            "2. Identify any significant discrepancies between model predictions\n"
-            "3. Assess the stock's technical indicators and momentum\n"
-            "4. Provide a clear Buy/Hold/Sell recommendation with confidence level (Low/Medium/High)\n"
-            "5. Suggest an appropriate investment horizon (Short/Medium/Long term)\n"
-            "6. Highlight key risks and opportunities\n\n"
-            "Structure your response with clear headings and bullet points."
-        )
-        return prompt
-    
-    def generate_recommendations(self, tickers=None):
-        """Generate recommendations for specified tickers"""
-        ticker_analysis, sector_summary, forecast_results = self._load_analysis_data()
-        
-        if not tickers:
-            tickers = list(forecast_results.keys())
-            
-        recommendations = {}
-        
-        for ticker in tickers:
-            if ticker not in ticker_analysis or ticker not in forecast_results:
-                print(f"Skipping {ticker} - missing analysis or forecast data")
+
+    def generate_recommendations(self, forecast_data: dict, analysis_data: dict,
+                                 user_pov: str = "moderate investor") -> dict:
+        output = {}
+
+        for symbol, forecast in forecast_data.items():
+            analysis = analysis_data.get(symbol)
+            if not analysis:
+                output[symbol] = {"error": "Missing analysis data"}
                 continue
-                
-            prompt = self._build_prompt(
-                ticker,
-                ticker_analysis[ticker],
-                sector_summary,
-                forecast_results[ticker]
-            )
-            
+
+            # Extract actual price and model forecasts
+            actual_price = forecast.get("actual_price", "N/A")
+            target_date = forecast.get("target_date", "N/A")
+
+            lstm_data = forecast.get("LSTM", {})
+            mlp_data = forecast.get("MLP", {})
+
+            lstm_forecast = lstm_data.get("forecast", "N/A")
+            lstm_rmse = lstm_data.get("rmse", "N/A")
+
+            mlp_forecast = mlp_data.get("forecast", "N/A")
+            mlp_rmse = mlp_data.get("rmse", "N/A")
+
+            # Pick the best model based on lower RMSE
             try:
-                response = self.llm.generate(
-                    prompt=prompt,
-                    temperature=0.3  # Lower temperature for more conservative recommendations
-                )
-                recommendations[ticker] = response
+                best_model = "LSTM" if lstm_rmse < mlp_rmse else "MLP"
+            except:
+                best_model = "N/A"
+
+            # Get analysis info
+            high = analysis.get("highest_price", "N/A")
+            low = analysis.get("lowest_price", "N/A")
+            growth = analysis.get("growth_2020_percent", "N/A")
+            sector = analysis.get("sector", "N/A")
+
+            # Construct the LLM prompt
+            prompt = f"""
+            You're a trusted financial advisor helping a cautious investor decide what to do with their {symbol} stock by January 31, 2025.
+
+            Here is the relevant data:
+            - Current price: {round(actual_price, 2)}
+            - Forecasted range: {round(min(lstm_forecast, mlp_forecast), 2)} to {round(max(lstm_forecast, mlp_forecast), 2)}
+            - Historical high: {high}
+            - Historical low: {low}
+            - Growth during 2020: {growth}%
+            - Sector: {sector}
+
+            Instructions:
+            - Give a clear, friendly recommendation: **Buy**, **Hold**, or **Sell**.
+            - Use simple, confident language a typical investor can understand.
+            - Avoid all technical terms (no mention of models, RMSE, or algorithms).
+            - Focus on price trends, risk level, and sector behavior.
+            - 2 to 4 sentences only.
+            """
+
+            # Call Gemini
+            try:
+                model = genai.GenerativeModel("gemini-1.5-flash")
+                response = model.generate_content(prompt)
+                llm_text = response.text.strip() if response.text else "No response"
             except Exception as e:
-                print(f"Error generating recommendation for {ticker}: {e}")
-                recommendations[ticker] = "Recommendation generation failed"
-        
-        # Save recommendations
-        os.makedirs("outputs", exist_ok=True)
-        with open("outputs/investment_recommendations.json", "w") as f:
-            json.dump(recommendations, f, indent=4)
-            
-        return recommendations
+                llm_text = f"Gemini API error: {e}"
+
+            output[symbol] = {
+                "recommendation": llm_text,
+                "best_model": best_model,
+                "actual": actual_price,
+                "lstm_forecast": lstm_forecast,
+                "mlp_forecast": mlp_forecast
+            }
+
+        return output
+
+
+if __name__ == "__main__":
+
+    with open("outputs/forecast_results.json") as f1, open("outputs/ticker_analysis.json") as f2:
+        forecast_data = json.load(f1)
+        analysis_data = json.load(f2)
+
+    agent = LLMRecommendationAgent()
+    results = agent.generate_recommendations(forecast_data, analysis_data, user_pov="I'm a cautious investor seeking long-term growth.")
+
+    with open("outputs/llm_recommendations.json", "w") as f:
+        json.dump(results, f, indent=2)
+
+    print("Saved LLM investment advice to outputs/llm_recommendations.json")
+
