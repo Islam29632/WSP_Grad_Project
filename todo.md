@@ -1,8 +1,8 @@
-- [ ] CrewAI Agents
+- [x] CrewAI Agents
 
   - [x] Agent 1 – Data Collector (10 pts)
   - [x] Agent 2 – Data Processor (20 pts)
-  - [ ] Agent 3 – LLM Recommendation Generator (10 pts)
+  - [x] Agent 3 – LLM Recommendation Generator (10 pts)
 
 <hr/>
 
@@ -17,7 +17,7 @@
 
 ## Final Deliverables
 - [x] User Authentication Module
-- [ ] CrewAI Agents Suite
+- [x] CrewAI Agents Suite
 - [ ] Automated Dataset Pipeline
 - [ ] Analytics & Forecasting Reports
 - [x] Streamlit Web App
