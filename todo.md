@@ -7,11 +7,11 @@
 <hr/>
 
 - [x] Dataset and Database (10 pts)
-- [ ] Forecasting Accuracy (10 pts)
+- [ ] Forecasting Accuracy (10 pts) in progress
 - [x] Streamlit Frontend: UI/UX (10 pts)
-- [ ] PDF Report Generation (5 pts)
-- [ ] bonus - RAG Simple Implementation 
-- [ ] Presentation Video (–)
+- [ ] PDF Report Generation (5 pts) in progress
+- [ ] bonus - RAG Simple Implementation  in progress
+- [ ] Presentation Video (–) in progress
 
 <hr/>
 
