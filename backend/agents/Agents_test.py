@@ -1,13 +1,13 @@
 # main.py
 from data_processor_agent import DataProcessorAgent
 from DC_Agent import Collectorgent
-from LLM_Recommendation_Generator_Agent import LLMRecommendationGenerator
+from LLM_Recommendation_Generator_Agent import LLMRecommendationAgent
 
 def main():
     # Initialize agents
     collector = Collectorgent()
     processor = DataProcessorAgent()
-    recommender = LLMRecommendationGenerator()
+    recommender = LLMRecommendationAgent()
     
     # Example tickers to analyze
     tickers = ["AAPL", "MSFT", "GOOGL"]

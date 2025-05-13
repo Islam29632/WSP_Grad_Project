@@ -4,7 +4,9 @@ python-dotenv
 pandas
 streamlit
 plotly
-fastapi "uvicorn[standard]"
+fastapi
+uvicorn[standard]
 python-multipart
 python-jose[cryptography]
 passlib[bcrypt]
+sqlalchemy
