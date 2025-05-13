@@ -24,5 +24,5 @@
 - [ ] PDF Report Generator
 - [x] Gemini API Integration
 - [ ] Deployment Artifacts (Streamlit & FastAPI URLs)
-- [ ] GitHub Repository (structure, docs, commits)
+- [x] GitHub Repository (structure, docs, commits)
 - [ ] Final Presentation Package (video + slides)
