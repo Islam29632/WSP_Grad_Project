@@ -7,8 +7,8 @@
 - [x] 3. [Mostafa Saad]
 - [x] 4. [Esraa Kamel]
 - [x] 5. [Mohamed Khaled]
-- [ ] [no contribute yet] 6. [Mahmoud Mohamed Elebiare]
-- [ ] [no contribute yet] 7. [Mohamed Alaa Eldin Fouad Ahmed Mansour]
+- [ ] [no contribute] 6. [Mahmoud Mohamed Elebiare]
+- [ ] [no contribute] 7. [Mohamed Alaa Eldin Fouad Ahmed Mansour]
 
 # System Architecture
 
