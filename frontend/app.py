@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import json
+import requests
+from datetime import datetime
 from auth import init_auth_state, login, signup
 # from api.crew import run_crew  # Import run_crew function
 
@@ -172,6 +174,40 @@ elif page == "Analysis":
             else:
                 st.warning(f"{symbol}: {analysis_output[symbol]['error']}")
 
+        # Generate and Download PDF Report
+        st.header("Download Report")
+        if st.button("Generate PDF Report"):
+            try:
+                with st.spinner("Generating PDF report..."):
+                    # Prepare data for the report
+                    response = requests.post(
+                        "http://localhost:8000/reports/generate",
+                        json={
+                            "stock_data": research_output,
+                            "analysis_results": analysis_output,
+                            "llm_recommendations": final_output
+                        }
+                    )
+                    
+                    if response.status_code == 200:
+                        # Get PDF content from response
+                        pdf_content = response.content
+                        
+                        # Create download button
+                        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+                        filename = f"stock_analysis_report_{timestamp}.pdf"
+                        st.download_button(
+                            label="Download PDF Report",
+                            data=pdf_content,
+                            file_name=filename,
+                            mime="application/pdf"
+                        )
+                        st.success("PDF report generated successfully!")
+                    else:
+                        st.error("Failed to generate PDF report. Please try again.")
+            except Exception as e:
+                st.error(f"Error generating PDF report: {str(e)}")
+
         # Investment Proposals
         st.header("Investment Proposals")
         for symbol in final_output:
@@ -185,8 +221,8 @@ elif page == "Analysis":
             else:
                 st.warning(f"{symbol}: {final_output[symbol]['error']}")
 
-        # Download Results
-        st.header("Download Results")
+        # Download Results as JSON
+        st.header("Download Raw Data")
         try:
             with open("crew_result.json", "r") as f:
                 st.download_button(

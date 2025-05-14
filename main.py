@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import os
 
 # Import routes
-from backend.routes import auth
+from backend.routes import auth, reports
 
 # Load environment variables
 load_dotenv()
@@ -25,8 +25,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include authentication routes
+# Include routers
 app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
+app.include_router(reports.router, prefix="/reports", tags=["Reports"])
 
 # Health check endpoint
 
