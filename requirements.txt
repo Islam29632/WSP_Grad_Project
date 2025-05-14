@@ -6,7 +6,6 @@ streamlit
 plotly
 fastapi
 uvicorn[standard]
-<<<<<<< HEAD
 python-dotenv
 python-multipart
 python-jose[cryptography]
@@ -14,9 +13,4 @@ passlib[bcrypt]
 fpdf2
 matplotlib
 requests
-=======
-python-multipart
-python-jose[cryptography]
-passlib[bcrypt]
 sqlalchemy
->>>>>>> fcf62fa270b61a8940b4a5749a83b1ffea215b05
