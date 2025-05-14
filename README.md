@@ -6,7 +6,7 @@
 - [x] 2. [Peter Magdy Gamil]
 - [x] 3. [Mostafa Saad]
 - [x] 4. [Esraa Kamel]
-- [ ] [no contribute yet] 5. [Mohamed Khaled]
+- [x] 5. [Mohamed Khaled]
 - [ ] [no contribute yet] 6. [Mahmoud Mohamed Elebiare]
 - [ ] [no contribute yet] 7. [Mohamed Alaa Eldin Fouad Ahmed Mansour]
 
