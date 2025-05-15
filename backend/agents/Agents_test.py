@@ -29,7 +29,7 @@ def main():
     print(f"✅ {forecast_result}")
     
     # Initialize recommendation agent with optional RAG file
-    rag_file_path = None  # Set to your RAG file path if needed (e.g., "data/rag/context.txt")
+    rag_file_path = None  
     recommender = LLMRecommendationAgent(rag_file_path=rag_file_path)
     
     # Generate recommendations
