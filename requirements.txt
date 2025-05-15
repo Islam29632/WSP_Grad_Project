@@ -15,3 +15,6 @@ matplotlib
 requests
 sqlalchemy
 optuna
+keras
+tensorflow
+scikit-learn
