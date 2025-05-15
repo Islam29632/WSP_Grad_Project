@@ -14,3 +14,4 @@ fpdf2
 matplotlib
 requests
 sqlalchemy
+optuna
