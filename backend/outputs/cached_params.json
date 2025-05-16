@@ -1,0 +1,734 @@
+{
+    "AMZN": {
+        "lstm": {
+            "batch_size": 32,
+            "units": 63,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 64,
+            "units": 127,
+            "optimizer": "adam"
+        }
+    },
+    "PTON": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 81,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 32,
+            "units": 87,
+            "optimizer": "adam"
+        }
+    },
+    "AMD": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 61,
+            "optimizer": "adam"
+        },
+        "mlp": {
+            "batch_size": 16,
+            "units": 46,
+            "optimizer": "adam"
+        }
+    },
+    "ADDYY": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 44,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 16,
+            "units": 60,
+            "optimizer": "adam"
+        }
+    },
+    "AXP": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 49,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 32,
+            "units": 89,
+            "optimizer": "adam"
+        }
+    },
+    "PMMAF": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 104,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 16,
+            "units": 73,
+            "optimizer": "adam"
+        }
+    },
+    "V": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 87,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 32,
+            "units": 54,
+            "optimizer": "adam"
+        }
+    },
+    "ADBE": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 54,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 16,
+            "units": 55,
+            "optimizer": "adam"
+        }
+    },
+    "UL": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 124,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 16,
+            "units": 50,
+            "optimizer": "adam"
+        }
+    },
+    "CSCO": {
+        "lstm": {
+            "batch_size": 32,
+            "units": 120,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 64,
+            "units": 55,
+            "optimizer": "adam"
+        }
+    },
+    "JPM": {
+        "lstm": {
+            "batch_size": 32,
+            "units": 114,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 16,
+            "units": 107,
+            "optimizer": "rmsprop"
+        }
+    },
+    "LVMUY": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 79,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 32,
+            "units": 102,
+            "optimizer": "adam"
+        }
+    },
+    "ABNB": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 90,
+            "optimizer": "adam"
+        },
+        "mlp": {
+            "batch_size": 64,
+            "units": 100,
+            "optimizer": "adam"
+        }
+    },
+    "MAR": {
+        "lstm": {
+            "batch_size": 32,
+            "units": 119,
+            "optimizer": "adam"
+        },
+        "mlp": {
+            "batch_size": 32,
+            "units": 99,
+            "optimizer": "adam"
+        }
+    },
+    "UBSFY": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 57,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 32,
+            "units": 124,
+            "optimizer": "adam"
+        }
+    },
+    "ZI": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 117,
+            "optimizer": "adam"
+        },
+        "mlp": {
+            "batch_size": 16,
+            "units": 121,
+            "optimizer": "rmsprop"
+        }
+    },
+    "TM": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 78,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 16,
+            "units": 79,
+            "optimizer": "adam"
+        }
+    },
+    "HLT": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 80,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 64,
+            "units": 116,
+            "optimizer": "adam"
+        }
+    },
+    "MCD": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 93,
+            "optimizer": "adam"
+        },
+        "mlp": {
+            "batch_size": 16,
+            "units": 91,
+            "optimizer": "adam"
+        }
+    },
+    "HD": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 123,
+            "optimizer": "adam"
+        },
+        "mlp": {
+            "batch_size": 16,
+            "units": 124,
+            "optimizer": "adam"
+        }
+    },
+    "MA": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 112,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 16,
+            "units": 64,
+            "optimizer": "adam"
+        }
+    },
+    "JNJ": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 72,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 64,
+            "units": 91,
+            "optimizer": "adam"
+        }
+    },
+    "UBER": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 49,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 16,
+            "units": 110,
+            "optimizer": "adam"
+        }
+    },
+    "PG": {
+        "lstm": {
+            "batch_size": 32,
+            "units": 81,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 64,
+            "units": 124,
+            "optimizer": "adam"
+        }
+    },
+    "COIN": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 103,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 32,
+            "units": 116,
+            "optimizer": "adam"
+        }
+    },
+    "FDX": {
+        "lstm": {
+            "batch_size": 32,
+            "units": 107,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 64,
+            "units": 93,
+            "optimizer": "adam"
+        }
+    },
+    "MMM": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 88,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 16,
+            "units": 49,
+            "optimizer": "adam"
+        }
+    },
+    "JWN": {
+        "lstm": {
+            "batch_size": 32,
+            "units": 78,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 16,
+            "units": 120,
+            "optimizer": "rmsprop"
+        }
+    },
+    "PHG": {
+        "lstm": {
+            "batch_size": 32,
+            "units": 105,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 64,
+            "units": 43,
+            "optimizer": "adam"
+        }
+    },
+    "NFLX": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 41,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 16,
+            "units": 111,
+            "optimizer": "adam"
+        }
+    },
+    "KO": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 39,
+            "optimizer": "adam"
+        },
+        "mlp": {
+            "batch_size": 32,
+            "units": 58,
+            "optimizer": "rmsprop"
+        }
+    },
+    "FL": {
+        "lstm": {
+            "batch_size": 32,
+            "units": 120,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 16,
+            "units": 62,
+            "optimizer": "rmsprop"
+        }
+    },
+    "CROX": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 104,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 32,
+            "units": 127,
+            "optimizer": "adam"
+        }
+    },
+    "LUV": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 120,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 32,
+            "units": 110,
+            "optimizer": "adam"
+        }
+    },
+    "SHOP": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 123,
+            "optimizer": "adam"
+        },
+        "mlp": {
+            "batch_size": 16,
+            "units": 89,
+            "optimizer": "rmsprop"
+        }
+    },
+    "AAPL": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 38,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 16,
+            "units": 47,
+            "optimizer": "adam"
+        }
+    },
+    "NKE": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 92,
+            "optimizer": "adam"
+        },
+        "mlp": {
+            "batch_size": 64,
+            "units": 98,
+            "optimizer": "adam"
+        }
+    },
+    "TGT": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 71,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 64,
+            "units": 108,
+            "optimizer": "adam"
+        }
+    },
+    "GOOGL": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 64,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 16,
+            "units": 65,
+            "optimizer": "adam"
+        }
+    },
+    "SPOT": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 64,
+            "optimizer": "adam"
+        },
+        "mlp": {
+            "batch_size": 16,
+            "units": 105,
+            "optimizer": "rmsprop"
+        }
+    },
+    "ZM": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 54,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 16,
+            "units": 59,
+            "optimizer": "adam"
+        }
+    },
+    "DIS": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 126,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 32,
+            "units": 95,
+            "optimizer": "adam"
+        }
+    },
+    "RBLX": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 59,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 16,
+            "units": 98,
+            "optimizer": "adam"
+        }
+    },
+    "NTDOY": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 59,
+            "optimizer": "adam"
+        },
+        "mlp": {
+            "batch_size": 64,
+            "units": 109,
+            "optimizer": "adam"
+        }
+    },
+    "DAL": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 72,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 32,
+            "units": 33,
+            "optimizer": "adam"
+        }
+    },
+    "MSFT": {
+        "lstm": {
+            "batch_size": 32,
+            "units": 117,
+            "optimizer": "adam"
+        },
+        "mlp": {
+            "batch_size": 16,
+            "units": 105,
+            "optimizer": "rmsprop"
+        }
+    },
+    "COST": {
+        "lstm": {
+            "batch_size": 32,
+            "units": 86,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 16,
+            "units": 69,
+            "optimizer": "rmsprop"
+        }
+    },
+    "AEO": {
+        "lstm": {
+            "batch_size": 32,
+            "units": 71,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 32,
+            "units": 71,
+            "optimizer": "adam"
+        }
+    },
+    "HSY": {
+        "lstm": {
+            "batch_size": 32,
+            "units": 95,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 64,
+            "units": 58,
+            "optimizer": "adam"
+        }
+    },
+    "TSLA": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 87,
+            "optimizer": "adam"
+        },
+        "mlp": {
+            "batch_size": 16,
+            "units": 96,
+            "optimizer": "adam"
+        }
+    },
+    "PINS": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 93,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 64,
+            "units": 116,
+            "optimizer": "adam"
+        }
+    },
+    "BAMXF": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 103,
+            "optimizer": "adam"
+        },
+        "mlp": {
+            "batch_size": 32,
+            "units": 95,
+            "optimizer": "adam"
+        }
+    },
+    "CMG": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 124,
+            "optimizer": "adam"
+        },
+        "mlp": {
+            "batch_size": 64,
+            "units": 102,
+            "optimizer": "adam"
+        }
+    },
+    "POAHY": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 82,
+            "optimizer": "adam"
+        },
+        "mlp": {
+            "batch_size": 64,
+            "units": 115,
+            "optimizer": "adam"
+        }
+    },
+    "LOGI": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 125,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 16,
+            "units": 76,
+            "optimizer": "adam"
+        }
+    },
+    "CL": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 97,
+            "optimizer": "adam"
+        },
+        "mlp": {
+            "batch_size": 16,
+            "units": 87,
+            "optimizer": "adam"
+        }
+    },
+    "CRM": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 84,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 32,
+            "units": 89,
+            "optimizer": "rmsprop"
+        }
+    },
+    "NVDA": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 76,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 32,
+            "units": 124,
+            "optimizer": "adam"
+        }
+    },
+    "SBUX": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 115,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 16,
+            "units": 122,
+            "optimizer": "adam"
+        }
+    },
+    "HMC": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 109,
+            "optimizer": "adam"
+        },
+        "mlp": {
+            "batch_size": 16,
+            "units": 83,
+            "optimizer": "adam"
+        }
+    },
+    "SQ": {
+        "lstm": {
+            "batch_size": 16,
+            "units": 81,
+            "optimizer": "rmsprop"
+        },
+        "mlp": {
+            "batch_size": 32,
+            "units": 104,
+            "optimizer": "adam"
+        }
+    }
+}
