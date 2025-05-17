@@ -36,7 +36,7 @@ graph TD
     C --> D[Time Series Forecasting];
     D --> E[Recommendation Generation];
     E --> E1[Utilize RAG for Context];
-    E --> E2[Fetch Real-time Data \(yfinance\)];
+    E --> E2[Fetch Real-time Data yfinance];
     E1 --> E;
     E2 --> E;
     E --> F[End];
