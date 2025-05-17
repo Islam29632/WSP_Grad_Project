@@ -102,7 +102,7 @@ def train_and_forecast(tickers=None, target_month="2025-01"):
             lstm_opt = Adam() if lstm_best["optimizer"] == "adam" else RMSprop()
 
             lstm_model = build_lstm_model(
-                None, lstm_input_shape, lstm_best
+                lstm_best, lstm_input_shape
             )
             lstm_model.compile(optimizer=lstm_opt, loss="mse")
             lstm_model.fit(
@@ -137,13 +137,13 @@ def train_and_forecast(tickers=None, target_month="2025-01"):
             mlp_opt = Adam() if mlp_best["optimizer"] == "adam" else RMSprop()
 
             mlp_model = build_mlp_model(
-                None, mlp_input_shape, mlp_best
+                mlp_best,mlp_input_shape
             )
             mlp_model.compile(optimizer=mlp_opt, loss="mse")
             mlp_model.fit(
                 X_mlp,
                 y_train,
-                epochs=10,
+                epochs=5,
                 batch_size=mlp_best["batch_size"],
                 verbose=0
             )
@@ -184,6 +184,3 @@ def train_and_forecast(tickers=None, target_month="2025-01"):
 
     print(f"\n✅ Results saved to {out_file}")
     return final_results
-
-
-
