@@ -1,97 +1,82 @@
 import os
 import yfinance as yf
 import google.generativeai as genai
-from crewai import LLM,Agent
+from crewai import LLM, Agent
 from dotenv import load_dotenv
-from langchain_community.document_loaders import CSVLoader, JSONLoader, TextLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceEmbeddings
-import chromadb
-from chromadb.config import Settings
+import duckdb
+import pandas as pd
 from typing import Optional, Dict, Any
-from chromadb import Client, Collection
+from pydantic import ConfigDict
 
 # Load API key from environment
 load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY")
-rag_file_path = "input/chroma_db"
+duckdb_file = "input\stock_data.db"  # Assuming you stored data here with the previous script
 gemini_pro = "gemini/gemini-1.5-pro"  # has 15 requests limit per day
 gemini_flash = "gemini/gemini-2.0-flash"  # has 1500 requests limit per day
 
-class LLMRecommendationAgent(Agent):
-    chroma_client: Optional[Client] = None
-    chroma_collection: Optional[Collection] = None
-    # Setting the parametter to be used
 
-    # Allow arbitrary types like ChromaDB Collection
-    model_config = {
-        "arbitrary_types_allowed": True
-    }
+class LLMRecommendationAgent(Agent):
+    duckdb_con: Optional[duckdb.DuckDBPyConnection] = None
+
+    # Pydantic V2 model config
+    model_config = ConfigDict(
+        arbitrary_types_allowed=True,
+        extra="forbid"
+    )
 
     def __init__(self):
         super().__init__(
             role="LLM Financial Advisor",
-            goal="Provide Buy/Hold/Sell recommendations with stock info from yfinance and RAG",
+            goal="Provide Buy/Hold/Sell recommendations with stock info from yfinance and insights from DuckDB",
             backstory=(
                 "An expert LLM-powered advisor trained on market analytics and risk-based decision making. "
-                "Combines real-time stock data from yfinance with RAG-enhanced insights."
+                "Combines real-time stock data from yfinance with insights retrieved from a DuckDB database."
             ),
-            llm= LLM(model=gemini_flash, api_key=api_key),
+            llm=LLM(model=gemini_flash, api_key=api_key),
         )
-        self._initialize_rag()
+        self._initialize_duckdb()
 
-
-
-    def _initialize_rag(self):
-        """Connect to existing ChromaDB persisted in chroma.sqlite3"""
-
-        if not rag_file_path:
-            print("[RAG Init] No file path provided.")
-            return
-
+    def _initialize_duckdb(self):
+        """Connect to the DuckDB database."""
         try:
-            # Assume rag_file_path is a folder that contains chroma.sqlite3 (Chroma needs a folder, not file directly)
-            persist_dir = os.path.dirname(rag_file_path) if rag_file_path.endswith(
-                '.sqlite3') else rag_file_path
-
-            self.chroma_client = Client(
-                Settings(
-                    persist_directory=persist_dir,
-                    anonymized_telemetry=False
-                )
-            )
-
-            # Connect to existing collection
-            self.chroma_collection = self.chroma_client.get_or_create_collection(name="rag_collection")
-            print("[RAG Init] Successfully connected to ChromaDB collection.")
-
+            self.duckdb_con = duckdb.connect(database=duckdb_file, read_only=True)
+            print(f"[DuckDB Init] Successfully connected to '{duckdb_file}'.")
         except Exception as e:
-            print(f"[RAG Init Error] {e}")
+            print(f"[DuckDB Init Error] {e}")
 
-
-    def _get_rag_context(self, symbol: str, sector: str) -> str:
-        if not self.chroma_collection:
+    def _get_duckdb_context(self, symbol: str, sector: str) -> str:
+        if not self.duckdb_con:
             return ""
 
+        table_name = f"{symbol.lower()}_historical"
         try:
-            query = f"{symbol} stock in {sector} sector: financial analysis and outlook"
-            embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-            # Use embed_documents or embed_query, NOT encode_documents
-            vector = embeddings.embed_query(query)
+            # Construct a query to get relevant information. You might need to adjust this
+            # based on what kind of "RAG" context you want to extract from the historical data.
+            # This example fetches the latest 5 closing prices and the average volume.
+            query = f"""
+                SELECT Close FROM {table_name} ORDER BY Date DESC LIMIT 5;
+                SELECT AVG(Volume) FROM {table_name};
+            """
+            results = self.duckdb_con.execute(query).fetchall()
 
-            results = self.chroma_collection.query(query_embeddings=[vector], n_results=3)
-            if not results or not results.get("documents"):
-                return ""
+            if results:
+                latest_closes = ", ".join(str(r[0]) for r in results[0])
+                avg_volume = results[1][0] if results[1] else "N/A"
+                context = (
+                    f"\nHistorical Stock Data (from DuckDB):\n"
+                    f"- Latest 5 Closing Prices: {latest_closes}\n"
+                    f"- Average Volume: {avg_volume:.2f}\n"
+                    f"- Note: This is a basic example. You can create more sophisticated "
+                    f"queries to extract more meaningful context."
+                )
+                return context
+            else:
+                return f"\nNo historical data found in DuckDB for '{symbol}'."
 
-            context = "\nAdditional Market Context (from RAG system):\n"
-            for i, doc in enumerate(results['documents'][0]):
-                context += f"- Source {i + 1}: {doc[:500]}"
-                if len(doc) > 500:
-                    context += "... [truncated]"
-                context += "\n"
-            return context
         except Exception as e:
-            print(f"[RAG Retrieval Error] {e}")
+            print(f"[DuckDB Retrieval Error] {e}")
             return ""
 
     def _get_yfinance_info(self, symbol: str) -> Dict[str, Any]:
@@ -125,6 +110,8 @@ class LLMRecommendationAgent(Agent):
                 continue
 
             yfinance_info = self._get_yfinance_info(symbol)
+            sector = yfinance_info.get("sector", "N/A")
+            duckdb_context = self._get_duckdb_context(symbol, sector)
 
             actual_price = forecast.get("actual_price", "N/A")
             target_date = forecast.get("target_date", "N/A")
@@ -141,9 +128,6 @@ class LLMRecommendationAgent(Agent):
             except:
                 best_model = "N/A"
 
-            sector = analysis.get("sector", "N/A")
-            rag_context = self._get_rag_context(symbol, sector)
-
             high = analysis.get("highest_price", "N/A")
             low = analysis.get("lowest_price", "N/A")
             growth = analysis.get("growth_2020_percent", "N/A")
@@ -151,7 +135,7 @@ class LLMRecommendationAgent(Agent):
             prompt = f'''
 You're a trusted financial advisor helping an investor decide what to do with their {symbol} stock.
 
-**Stock Information (from RAG)**:
+**Stock Information (from yfinance)**:
 - Company: {yfinance_info.get('company_name')}
 - Sector: {sector}
 - Industry: {yfinance_info.get('industry')}
@@ -167,14 +151,13 @@ You're a trusted financial advisor helping an investor decide what to do with th
 - Historical Low: {low}
 - Growth during 2020: {growth}%
 
-{rag_context}
+{duckdb_context}
 
 **Instructions**:
 1. Provide clear recommendation: **Buy**, **Hold**, or **Sell**
 2. Explain reasoning in 2-4 sentences
-3. Consider: price trends, valuation metrics, sector outlook
-4. Incorporate RAG insights if available
-5. Use simple, non-technical language
+3. Consider: price trends, valuation metrics, sector outlook, and historical data from DuckDB.
+4. Use simple, non-technical language.
 '''
 
             try:
@@ -186,7 +169,7 @@ You're a trusted financial advisor helping an investor decide what to do with th
 
             output[symbol] = {
                 "recommendation": llm_text,
-                "yfinance_info (RAG context)": yfinance_info,
+                "yfinance_info": yfinance_info,
                 "technical_analysis": {
                     "best_model": best_model,
                     "current_price": actual_price,
@@ -196,7 +179,7 @@ You're a trusted financial advisor helping an investor decide what to do with th
                     "historical_low": low,
                     "growth_2020": growth
                 },
-                "rag_used": bool(rag_context)
+                "duckdb_used": bool(duckdb_context)
             }
 
         return output
