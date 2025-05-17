@@ -1,27 +1,28 @@
-# Database Technical Documentation
+# System Architecture
 
-## Authentication System Architecture
+## Authentication System
+The project implements a secure authentication system using FastAPI for the backend and SQLite for the database. Here's how it works:
 
-The authentication system is built using FastAPI for the backend and SQLite for the database. Here's a detailed technical overview:
-
-## Database Structure
+### Database Structure
 We use SQLite to store user data and activity logs in two main tables:
 
 1. **Users Table**:
-   - `user_id`: Unique identifier for each user (PRIMARY KEY AUTOINCREMENT)
-   - `username`: Unique username (UNIQUE NOT NULL)
-   - `password_hashed`: SHA-256 hashed password (NOT NULL)
-   - `registration_date`: Timestamp of user registration (DEFAULT CURRENT_TIMESTAMP)
+   - `user_id`: Unique identifier for each user
+   - `username`: Unique username
+   - `password_hashed`: SHA-256 hashed password
+   - `registration_date`: Timestamp of user registration
 
 2. **Activity Logs Table**:
-   - `log_id`: Unique identifier for each activity (PRIMARY KEY AUTOINCREMENT)
-   - `user_id`: References the user who performed the action (FOREIGN KEY)
-   - `action`: Type of action (e.g., login, registration) (NOT NULL)
-   - `timestamp`: When the action occurred (DEFAULT CURRENT_TIMESTAMP)
+   - `log_id`: Unique identifier for each activity
+   - `user_id`: References the user who performed the action
+   - `action`: Type of action (e.g., login, registration)
+   - `timestamp`: When the action occurred
 
-## API Endpoints
-
-The FastAPI backend provides the following authentication endpoints:
+### Security Features
+- Password hashing using SHA-256
+- Activity logging for user actions
+- Token-based authentication for API endpoints
+- Session management for frontend
 
 ```bash
 POST /auth/register

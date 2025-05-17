@@ -31,7 +31,6 @@ app.include_router(reports.router, prefix="/reports", tags=["Reports"])
 
 # Health check endpoint
 
-
 @app.get("/")
 async def root():
     return {"status": "healthy", "message": "Stock Market Analysis Platform API"}

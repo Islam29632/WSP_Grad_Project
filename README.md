@@ -10,31 +10,39 @@
 - [ ] [no contribute] 6. [Mahmoud Mohamed Elebiare]
 - [ ] [no contribute] 7. [Mohamed Alaa Eldin Fouad Ahmed Mansour]
 
-# System Architecture
+# Streamlit flowchart
 
-## Authentication System
-The project implements a secure authentication system using FastAPI for the backend and SQLite for the database. Here's how it works:
+```mermaid
+graph TD
+    A[Start] --> B{User Interface};
+    B --> C[Login Page];
+    C --> D{Authentication};
+    D -- Success --> E[Main Dashboard];
+    D -- Failure --> C;
+    C --> F[Sign Up Page];
+    F --> C;
 
-### Database Structure
-We use SQLite to store user data and activity logs in two main tables:
+    G[Start Application] --> H[Start API Server];
+    H --> I[Start Streamlit App];
+    I --> E;
+```
 
-1. **Users Table**:
-   - `user_id`: Unique identifier for each user
-   - `username`: Unique username
-   - `password_hashed`: SHA-256 hashed password
-   - `registration_date`: Timestamp of user registration
+# Agents flowchart
 
-2. **Activity Logs Table**:
-   - `log_id`: Unique identifier for each activity
-   - `user_id`: References the user who performed the action
-   - `action`: Type of action (e.g., login, registration)
-   - `timestamp`: When the action occurred
+```mermaid
+graph TD
+    A[Start] --> B[Automated Dataset Pipeline];
+    B --> C[Data Processing & Analysis];
+    C --> D[Time Series Forecasting];
+    D --> E[Recommendation Generation];
+    E --> E1[Utilize RAG for Context];
+    E --> E2[Fetch Real-time Data (yfinance)];
+    E1 --> E;
+    E2 --> E;
+    E --> F[End];
+```
 
-### Security Features
-- Password hashing using SHA-256
-- Activity logging for user actions
-- Token-based authentication for API endpoints
-- Session management for frontend
+# Demonastration video
 
 ## User Interface
 
@@ -50,35 +58,21 @@ New users can create an account through the sign-up page. The system validates t
 <img src="resources/Main_page.jpg" title="Title" alt="title" width="35%">
 After successful authentication, users are presented with the main dashboard where they can access the application's features.
 
-# How to contribute
-1. Fork the repository 
-```bash
-git clone https://github.com/Islam29632/WSP_Grad_Project.git
-```
-2. install dependencies
+# Setup the Application
+
 ```bash
 pip install -r requirements.txt
-```
-3. Make your changes
-4. Commit your changes
-```bash
-git add .
-git commit -m "your message"
-```
-5. Push 
-```bash
-git push
 ```
 
 # Running the Application
 
-1. Start the API server first from the project root directory
+1. Start the API server first from the `project root directory`
 ```bash
 uvicorn main:app
 ```
 The API server will start on http://localhost:8000
 
-2. Start the Streamlit app from the frontend directory
+2. Start the Streamlit app from the `frontend directory`
 ```bash
 streamlit run app.py
 ```
@@ -86,9 +80,7 @@ The Streamlit app will be available at http://localhost:8501
 
 Note: Make sure to start the API server before running the Streamlit app, as the frontend depends on the API being available.
 
-# Technical Documentation
+# Technical Documentations
 
 For detailed technical documentation about the authentication system, database structure, API endpoints, and security features, please refer to:
-- [Database & Authentication Documentation](backend/database/README.md)
-
-# Check `TODO.md` file for tasks.
+- [Database & Authentication Documentation](/docs/Authentication%20System%20Architecture.md)
