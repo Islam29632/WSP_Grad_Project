@@ -5,7 +5,8 @@ from crewai import Agent
 from crewai.llm import LLM
 from dotenv import load_dotenv
 from utils.data_processor import train_and_forecast
-
+from typing import Optional
+import matplotlib.pyplot as plt
 # Load environment variables from .env
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
@@ -26,7 +27,7 @@ class DataProcessorAgent(Agent):
             llm=dummy_llm
         )
 
-    def generate_sector_map(self, input_csv="data/raw/World-Stock-Prices-Dataset.csv", output_json="outputs/ticker_sector_map.json") -> str:
+    def generate_sector_map(self, input_csv="data/processed/cleaned_stock_data.csv", output_json="outputs/ticker_sector_map.json") -> str:
         df = pd.read_csv(input_csv)
         df.columns = [col.strip().lower().replace(" ", "_") for col in df.columns]
         df = df.dropna(subset=["ticker", "industry_tag"])
@@ -43,13 +44,11 @@ class DataProcessorAgent(Agent):
 
         return f"✅ Saved sector map with {len(ticker_sector_map)} entries to {output_json}"
 
-    def compute_statistics(self, input_csv="data/raw/World-Stock-Prices-Dataset.csv", sector_map_path="outputs/ticker_sector_map.json") -> str:
+    def compute_statistics(self, input_csv="data/processed/cleaned_stock_data.csv", sector_map_path="outputs/ticker_sector_map.json") -> str:
 
         # Load and clean the CSV
         df = pd.read_csv(input_csv)
-        df.columns = [col.strip().lower().replace(" ", "_") for col in df.columns]
-        df["date"] = pd.to_datetime(df["date"], utc=True)
-
+        df['date'] = pd.to_datetime(df['date'], utc=True)
         # Load sector mapping
         with open(sector_map_path, "r") as f:
             sector_map = json.load(f)
@@ -88,7 +87,7 @@ class DataProcessorAgent(Agent):
 
         return "Sector and ticker statistics saved to outputs/"
         
-    def forecast_prices(self, tickers=None) -> str:
+    def forecast_prices(self, tickers: Optional[list] = None) -> str:
         results = train_and_forecast(tickers)
 
         if not results:
