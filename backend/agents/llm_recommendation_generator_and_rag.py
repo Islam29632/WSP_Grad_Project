@@ -1,22 +1,34 @@
 import os
-import json
 import yfinance as yf
 import google.generativeai as genai
-from crewai import Agent
+from crewai import LLM,Agent
 from dotenv import load_dotenv
-from langchain.document_loaders import TextLoader, JSONLoader, CSVLoader
+from langchain_community.document_loaders import CSVLoader, JSONLoader, TextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.vectorstores import FAISS
+from langchain_community.embeddings import HuggingFaceEmbeddings
+import chromadb
+from chromadb.config import Settings
 from typing import Optional, Dict, Any
+from chromadb import Client, Collection
 
 # Load API key from environment
 load_dotenv()
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-genai.configure(api_key=GEMINI_API_KEY)
+api_key = os.getenv("GEMINI_API_KEY")
+rag_file_path = "input/chroma_db"
+gemini_pro = "gemini/gemini-1.5-pro"  # has 15 requests limit per day
+gemini_flash = "gemini/gemini-2.0-flash"  # has 1500 requests limit per day
 
 class LLMRecommendationAgent(Agent):
-    def __init__(self, rag_file_path: Optional[str] = None):
+    chroma_client: Optional[Client] = None
+    chroma_collection: Optional[Collection] = None
+    # Setting the parametter to be used
+
+    # Allow arbitrary types like ChromaDB Collection
+    model_config = {
+        "arbitrary_types_allowed": True
+    }
+
+    def __init__(self):
         super().__init__(
             role="LLM Financial Advisor",
             goal="Provide Buy/Hold/Sell recommendations with stock info from yfinance and RAG",
@@ -24,77 +36,68 @@ class LLMRecommendationAgent(Agent):
                 "An expert LLM-powered advisor trained on market analytics and risk-based decision making. "
                 "Combines real-time stock data from yfinance with RAG-enhanced insights."
             ),
-            llm=None
+            llm= LLM(model=gemini_flash, api_key=api_key),
         )
-        self.rag_file_path = rag_file_path
-        self.vectorstore = self._initialize_rag() if rag_file_path else None
+        self._initialize_rag()
+
+
 
     def _initialize_rag(self):
-        """Initialize RAG components using LangChain"""
+        """Connect to existing ChromaDB persisted in chroma.sqlite3"""
+
+        if not rag_file_path:
+            print("[RAG Init] No file path provided.")
+            return
+
         try:
-            if self.rag_file_path.endswith('.txt'):
-                loader = TextLoader(self.rag_file_path)
-            elif self.rag_file_path.endswith('.csv'):
-                loader = CSVLoader(self.rag_file_path)
-            elif self.rag_file_path.endswith('.json'):
-                loader = JSONLoader(
-                    file_path=self.rag_file_path,
-                    jq_schema='.',
-                    text_content=False
+            # Assume rag_file_path is a folder that contains chroma.sqlite3 (Chroma needs a folder, not file directly)
+            persist_dir = os.path.dirname(rag_file_path) if rag_file_path.endswith(
+                '.sqlite3') else rag_file_path
+
+            self.chroma_client = Client(
+                Settings(
+                    persist_directory=persist_dir,
+                    anonymized_telemetry=False
                 )
-            else:
-                raise ValueError(f"Unsupported file format: {self.rag_file_path}")
-            
-            documents = loader.load()
-            text_splitter = RecursiveCharacterTextSplitter(
-                chunk_size=1000,
-                chunk_overlap=200
             )
-            splits = text_splitter.split_documents(documents)
-            
-            embeddings = HuggingFaceEmbeddings(
-                model_name="all-MiniLM-L6-v2",
-                model_kwargs={'device': 'cpu'}
-            )
-            
-            return FAISS.from_documents(splits, embeddings)
-            
+
+            # Connect to existing collection
+            self.chroma_collection = self.chroma_client.get_or_create_collection(name="rag_collection")
+            print("[RAG Init] Successfully connected to ChromaDB collection.")
+
         except Exception as e:
-            print(f"Error initializing RAG: {e}")
-            return None
+            print(f"[RAG Init Error] {e}")
+
 
     def _get_rag_context(self, symbol: str, sector: str) -> str:
-        """Retrieve relevant context using RAG"""
-        if not self.vectorstore:
+        if not self.chroma_collection:
             return ""
-        
+
         try:
             query = f"{symbol} stock in {sector} sector: financial analysis and outlook"
-            relevant_docs = self.vectorstore.similarity_search(query, k=3)
-            
-            if not relevant_docs:
+            embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+            # Use embed_documents or embed_query, NOT encode_documents
+            vector = embeddings.embed_query(query)
+
+            results = self.chroma_collection.query(query_embeddings=[vector], n_results=3)
+            if not results or not results.get("documents"):
                 return ""
-            
+
             context = "\nAdditional Market Context (from RAG system):\n"
-            for i, doc in enumerate(relevant_docs):
-                context += f"- Source {i+1}: {doc.page_content[:500]}"
-                if len(doc.page_content) > 500:
+            for i, doc in enumerate(results['documents'][0]):
+                context += f"- Source {i + 1}: {doc[:500]}"
+                if len(doc) > 500:
                     context += "... [truncated]"
                 context += "\n"
-            
             return context
-            
         except Exception as e:
-            print(f"Error in RAG retrieval: {e}")
+            print(f"[RAG Retrieval Error] {e}")
             return ""
 
     def _get_yfinance_info(self, symbol: str) -> Dict[str, Any]:
-        """Fetch stock info from yfinance"""
         try:
             ticker = yf.Ticker(symbol)
             info = ticker.info
-            
-            # Extract relevant information
             return {
                 "company_name": info.get("longName", "N/A"),
                 "sector": info.get("sector", "N/A"),
@@ -108,11 +111,11 @@ class LLMRecommendationAgent(Agent):
                 "beta": info.get("beta", "N/A")
             }
         except Exception as e:
-            print(f"Error fetching yfinance data for {symbol}: {e}")
+            print(f"[yfinance Error] {e}")
             return {}
 
     def generate_recommendations(self, forecast_data: dict, analysis_data: dict,
-                               user_pov: str = "moderate investor") -> dict:
+                                 user_pov: str = "moderate investor") -> dict:
         output = {}
 
         for symbol, forecast in forecast_data.items():
@@ -121,74 +124,61 @@ class LLMRecommendationAgent(Agent):
                 output[symbol] = {"error": "Missing analysis data"}
                 continue
 
-            # Get yfinance data
             yfinance_info = self._get_yfinance_info(symbol)
-            
-            # Extract forecast data
+
             actual_price = forecast.get("actual_price", "N/A")
             target_date = forecast.get("target_date", "N/A")
-
             lstm_data = forecast.get("LSTM", {})
             mlp_data = forecast.get("MLP", {})
 
             lstm_forecast = lstm_data.get("forecast", "N/A")
-            lstm_rmse = lstm_data.get("rmse", "N/A")
-
             mlp_forecast = mlp_data.get("forecast", "N/A")
-            mlp_rmse = mlp_data.get("rmse", "N/A")
-            
-            # Pick the best model
+
             try:
-                lstm_rmse = forecast.get("LSTM", {}).get("rmse", float('inf'))
-                mlp_rmse = forecast.get("MLP", {}).get("rmse", float('inf'))
+                lstm_rmse = lstm_data.get("rmse", float('inf'))
+                mlp_rmse = mlp_data.get("rmse", float('inf'))
                 best_model = "LSTM" if lstm_rmse < mlp_rmse else "MLP"
             except:
                 best_model = "N/A"
 
-            # Get RAG context
             sector = analysis.get("sector", "N/A")
             rag_context = self._get_rag_context(symbol, sector)
 
-            # Get analysis info
             high = analysis.get("highest_price", "N/A")
             low = analysis.get("lowest_price", "N/A")
             growth = analysis.get("growth_2020_percent", "N/A")
-            sector = analysis.get("sector", "N/A")
 
-            # Construct the LLM prompt
             prompt = f'''
-            You're a trusted financial advisor helping an investor decide what to do with their {symbol} stock.
-            
-            **Stock Information(from RAG)**:
-            - Company: {yfinance_info.get('company_name', 'N/A')}
-            - Sector: {sector}
-            - Industry: {yfinance_info.get('industry', 'N/A')}
-            - Current Price: {round(float(actual_price), 2) if actual_price != 'N/A' else 'N/A'}
-            - Market Cap: {yfinance_info.get('market_cap', 'N/A')}
-            - P/E Ratio: {yfinance_info.get('pe_ratio', 'N/A')}
-            - 52-Week Range: {yfinance_info.get('52_week_low', 'N/A')} - {yfinance_info.get('52_week_high', 'N/A')}
-            
-            **Technical Analysis**:
-             - Current price: {round(actual_price, 2)}
-            - Forecasted range: {round(min(lstm_forecast, mlp_forecast), 2)} to {round(max(lstm_forecast, mlp_forecast), 2)}
-            - Historical High: {high}
-            - Historical Low: {low}
-            - Growth during 2020: {growth}%
-            - Sector: {sector}
-            
-            {rag_context}
-            
-            **Instructions**:
-            1. Provide clear recommendation: **Buy**, **Hold**, or **Sell**
-            2. Explain reasoning in 2-4 sentences
-            3. Consider: price trends, valuation metrics, sector outlook
-            4. Incorporate RAG insights if available
-            5. Use simple, non-technical language
-            '''
+You're a trusted financial advisor helping an investor decide what to do with their {symbol} stock.
 
-            # Call Gemini
+**Stock Information (from RAG)**:
+- Company: {yfinance_info.get('company_name')}
+- Sector: {sector}
+- Industry: {yfinance_info.get('industry')}
+- Current Price: {round(float(actual_price), 2) if actual_price != 'N/A' else 'N/A'}
+- Market Cap: {yfinance_info.get('market_cap')}
+- P/E Ratio: {yfinance_info.get('pe_ratio')}
+- 52-Week Range: {yfinance_info.get('52_week_low')} - {yfinance_info.get('52_week_high')}
+
+**Technical Analysis**:
+- Current price: {round(float(actual_price), 2) if actual_price != 'N/A' else 'N/A'}
+- Forecasted range: {round(min(lstm_forecast, mlp_forecast), 2) if isinstance(lstm_forecast, (int, float)) and isinstance(mlp_forecast, (int, float)) else 'N/A'} to {round(max(lstm_forecast, mlp_forecast), 2) if isinstance(lstm_forecast, (int, float)) and isinstance(mlp_forecast, (int, float)) else 'N/A'}
+- Historical High: {high}
+- Historical Low: {low}
+- Growth during 2020: {growth}%
+
+{rag_context}
+
+**Instructions**:
+1. Provide clear recommendation: **Buy**, **Hold**, or **Sell**
+2. Explain reasoning in 2-4 sentences
+3. Consider: price trends, valuation metrics, sector outlook
+4. Incorporate RAG insights if available
+5. Use simple, non-technical language
+'''
+
             try:
-                model = genai.GenerativeModel("gemini-1.5-flash")
+                model = genai.GenerativeModel(gemini_flash)
                 response = model.generate_content(prompt)
                 llm_text = response.text.strip() if response.text else "No response"
             except Exception as e:
@@ -210,18 +200,3 @@ class LLMRecommendationAgent(Agent):
             }
 
         return output
-
-if __name__ == "__main__":
-
-    with open("outputs/forecast_results.json") as f1, open("outputs/ticker_analysis.json") as f2:
-        forecast_data = json.load(f1)
-        analysis_data = json.load(f2)
-
-    agent = LLMRecommendationAgent()
-    results = agent.generate_recommendations(forecast_data, analysis_data, user_pov="I'm a cautious investor seeking long-term growth.")
-
-    with open("outputs/llm_recommendations.json", "w") as f:
-        json.dump(results, f, indent=2)
-
-    print("Saved LLM investment advice to outputs/llm_recommendations.json")
-
