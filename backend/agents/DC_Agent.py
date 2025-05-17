@@ -12,9 +12,7 @@ api_key = os.getenv("GEMINI_API_KEY")
 
 genai.configure(api_key=api_key)
 project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-local_loc = os.path.join(project_root, "backend", "database", "World-Stock-Prices-Dataset.csv")
-
-#local_loc = r"C:\Users\Ostor\PycharmProjects\PythonProject\.venv\WSP\World-Stock-Prices-Dataset.csv"
+local_loc = os.path.join(project_root, "integration", "database", "World-Stock-Prices-Dataset.csv")
 #Note All the Agents are built almost the same but the configurations only different.
 #Creating Class Collectorgent
 class Collectorgent(Agent):
@@ -41,32 +39,23 @@ class Collectorgent(Agent):
     def data_loc(self):
         return local_loc
 
-    def collect(self, targets: Optional[list], col_name="Ticker") -> pd.DataFrame:
+    def collect(self) -> pd.DataFrame:
         # Initialize 'data' as an empty DataFrame
         data = pd.DataFrame()
         df = pd.read_csv(self.data_loc())
-        if targets:
-            for target in targets:
-                if target in df[col_name].unique():
-                    # Concatenate only if target is found in the 'col_name' column
-                    data = pd.concat([data, df[df[col_name] == target]], ignore_index=True)
-                else:
-                    print(f"Target '{target}' Not Found")
-        else:
-            # Select specific columns (Note: Correct column selection syntax)
-            data = df[['Industry_Tag', 'Date', 'Open', 'High', 'Low', 'Close', 'Volume']]
+        data = df[['Industry_Tag', 'Date', 'Open', 'High', 'Low', 'Close', 'Volume','Ticker']].dropna()
 
         return data
 
-    def preprocess(self, df: pd.DataFrame, tickers: Optional[list] = None, min_rows: int = 20) -> pd.DataFrame:
+    def preprocess(self, df: pd.DataFrame, min_rows: int = 20) -> pd.DataFrame:
         # Step 1: Standardize column names
         df.columns = [col.strip().lower().replace(" ", "_") for col in df.columns]
-
+        '''
         # Step 2: Filter for specific tickers
         if tickers:
             tickers = [t.upper() for t in tickers]
             df = df[df['ticker'].isin(tickers)]
-
+        '''
         # Step 3: Convert 'Date' to datetime and drop rows with missing 'Close' values
         df['date'] = pd.to_datetime(df['date'], utc=True)
         df = df.dropna(subset=['close'])
@@ -97,4 +86,3 @@ class Collectorgent(Agent):
         OUTPUT_PATH ='data/processed/cleaned_stock_data.csv'
         os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
         df.to_csv(OUTPUT_PATH, index=False)
-
