@@ -21,3 +21,5 @@ scikit-learn
 langchain-community
 langchain
 yfinance 
+tf-keras
+sentence-transformers
