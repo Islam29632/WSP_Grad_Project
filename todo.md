@@ -7,9 +7,9 @@
 <hr/>
 
 - [x] Dataset and Database (10 pts)
-- [ ] Forecasting Accuracy (10 pts) in progress
+- [x] Forecasting Accuracy (10 pts) in progress
 - [x] Streamlit Frontend: UI/UX (10 pts)
-- [ ] PDF Report Generation (5 pts) in progress
+- [x] PDF Report Generation (5 pts) in progress
 - [ ] bonus - RAG Simple Implementation  in progress
 - [ ] Presentation Video (–) in progress
 
@@ -21,7 +21,7 @@
 - [ ] Automated Dataset Pipeline
 - [ ] Analytics & Forecasting Reports
 - [x] Streamlit Web App
-- [ ] PDF Report Generator
+- [x] PDF Report Generator
 - [x] Gemini API Integration
 - [ ] Deployment Artifacts (Streamlit & FastAPI URLs)
 - [x] GitHub Repository (structure, docs, commits)
