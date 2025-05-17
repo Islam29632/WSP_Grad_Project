@@ -19,7 +19,7 @@
 - [x] User Authentication Module
 - [x] CrewAI Agents Suite
 - [ ] Automated Dataset Pipeline
-- [ ] Analytics & Forecasting Reports
+- [x] Analytics & Forecasting Reports
 - [x] Streamlit Web App
 - [x] PDF Report Generator
 - [x] Gemini API Integration
