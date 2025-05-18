@@ -5,7 +5,8 @@ import json
 import requests
 from datetime import datetime
 from auth import init_auth_state, login, signup
-# from api.crew import run_crew  # Import run_crew function
+import subprocess
+import os
 
 # Page configuration
 st.set_page_config(page_title="Stock Analysis App", layout="wide")
@@ -16,14 +17,18 @@ if "results" not in st.session_state:
     st.session_state.results = {"research": {}, "analysis": {}, "final": {}}
 if "run_triggered" not in st.session_state:
     st.session_state.run_triggered = False
+if "backend_output" not in st.session_state:
+    st.session_state.backend_output = ""
 
-# Handle authentication
-if not st.session_state["authenticated"]:
+# Handle authentication (Login Page)
+if not st.session_state.get("authenticated", False):
     if st.session_state.get("show_signup", False):
         signup()
     else:
         login()
-    st.stop()
+    st.stop() # Stop execution if not authenticated
+
+# --- Main Application Content (after successful authentication) ---
 
 # Sidebar navigation
 page = st.sidebar.selectbox("Navigate", ["Welcome", "Analysis"])
@@ -50,189 +55,222 @@ elif page == "Analysis":
     symbols_input = st.text_input(
         "Stock Symbols (comma-separated)", default_symbols)
     user_pov = "I’m a conservative investor looking for stable growth with low risk."
-    run_button = st.button("Run Analysis")
 
-    # Parse symbols
-    def parse_symbols(input_string):
-        symbols = [s.strip().upper()
-                   for s in input_string.split(",") if s.strip()]
-        if not symbols:
-            st.error("Please enter at least one valid stock symbol.")
-            return None
-        return symbols
-
-    # Run analysis
-    if run_button:
-        symbols = parse_symbols(symbols_input)
+    # Button to trigger backend execution
+    if st.button("Start Analysis Pipeline"):
+        symbols = [symbol.strip() for symbol in symbols_input.split(',') if symbol.strip()]
         if symbols:
-            with st.spinner("Running analysis..."):
-                try:
-                    research_output, analysis_output, final_output = run_crew(
-                        symbols, user_pov)
-                    st.session_state.results = {
-                        "research": research_output,
-                        "analysis": analysis_output,
-                        "final": final_output
-                    }
-                    with open("crew_result.json", "w") as f:
-                        json.dump(final_output, f, indent=2)
-                    st.session_state.run_triggered = True
-                    st.success("Analysis completed!")
-                except Exception as e:
-                    st.error(f"Error: {str(e)}")
+            st.session_state.run_triggered = True
+            st.session_state.results = {"research": {}, "analysis": {}, "final": {}} # Clear previous results
+            st.session_state.backend_output = "" # Clear previous backend output
+            st.rerun() # Rerun to show progress indicators and start pipeline
 
-    # Display results
-    if st.session_state.run_triggered and st.session_state.results["final"]:
-        results = st.session_state.results
-        research_output = results["research"]
-        analysis_output = results["analysis"]
-        final_output = results["final"]
+    # Run analysis pipeline if triggered
+    if st.session_state.run_triggered:
+        symbols = [symbol.strip() for symbol in symbols_input.split(',') if symbol.strip()]
+        if symbols:
+            # Initialize progress bar and status text
+            progress_text = st.empty()
+            progress_bar = st.progress(0)
+            backend_output_area = st.empty() # Area to display backend output
 
-        # Raw Data
-        st.header("Raw Stock Data")
-        for symbol in research_output:
-            if "error" not in research_output[symbol]:
-                st.subheader(symbol)
-                df = pd.DataFrame(
-                    list(research_output[symbol].items()), columns=["Date", "Price"])
-                df["Date"] = pd.to_datetime(df["Date"])
-                st.dataframe(df.sort_values("Date")[
-                             ["Date", "Price"]], use_container_width=True)
-            else:
-                st.warning(f"{symbol}: {research_output[symbol]['error']}")
-
-        # Price Plot
-        st.header("Price History and Forecast")
-        for symbol in research_output:
-            if "error" not in research_output[symbol] and symbol in analysis_output and "error" not in analysis_output[symbol]:
-                df = pd.DataFrame(
-                    list(research_output[symbol].items()), columns=["Date", "Price"])
-                df["Date"] = pd.to_datetime(df["Date"])
-                df = df.sort_values("Date")
-
-                # Add forecast
-                forecast = analysis_output[symbol]["forecast_next_month"]
-                last_date = df["Date"].max()
-                forecast_date = last_date + pd.offsets.MonthEnd(1)
-                forecast_df = pd.DataFrame({"Date": [forecast_date], "Price": [
-                                           forecast], "Type": ["Forecast"]})
-                df["Type"] = "Historical"
-                plot_df = pd.concat([df, forecast_df], ignore_index=True)
-
-                # Plot
-                fig = px.line(plot_df, x="Date", y="Price", color="Type",
-                              title=f"{symbol} Price History and Forecast")
-                fig.add_scatter(x=[forecast_date], y=[
-                                forecast], mode="markers", name="Forecast Point", marker=dict(size=10))
-                st.plotly_chart(fig, use_container_width=True)
-            else:
-                st.warning(f"{symbol}: Cannot plot due to data error.")
-
-        # Analysis Results
-        st.header("Analysis Results")
-        for symbol in analysis_output:
-            if "error" not in analysis_output[symbol]:
-                st.subheader(symbol)
-
-                # Basic Stats
-                st.markdown("**Basic Statistics**")
-                stats_df = pd.DataFrame({
-                    "Metric": ["Average Price", "Max Price", "Min Price"],
-                    "Value": [
-                        analysis_output[symbol]["basic_stats"]["average_price"],
-                        analysis_output[symbol]["basic_stats"]["max_price"],
-                        analysis_output[symbol]["basic_stats"]["min_price"]
-                    ]
-                })
-                st.dataframe(stats_df, use_container_width=True)
-
-                # Month-over-Month Changes
-                st.markdown("**Recent Month-over-Month Changes (%)**")
-                changes_df = pd.DataFrame({
-                    "Change (%)": analysis_output[symbol]["basic_stats"]["month_over_month_changes"][-5:]
-                })
-                st.dataframe(changes_df, use_container_width=True)
-
-                # Trend
-                st.markdown("**Trend**")
-                st.write(
-                    f"Direction: {analysis_output[symbol]['trend']['direction']}, Slope: {analysis_output[symbol]['trend']['slope']:.4f}")
-
-                # Anomalies
-                st.markdown("**Anomalies**")
-                if analysis_output[symbol]["anomalies"]:
-                    anomalies_df = pd.DataFrame(
-                        analysis_output[symbol]["anomalies"])
-                    st.dataframe(anomalies_df, use_container_width=True)
-                else:
-                    st.write("No anomalies detected.")
-
-                # Forecast
-                st.markdown("**Next Month Forecast**")
-                st.write(
-                    f"Predicted Price: ${analysis_output[symbol]['forecast_next_month']:.2f}")
-            else:
-                st.warning(f"{symbol}: {analysis_output[symbol]['error']}")
-
-        # Generate and Download PDF Report
-        st.header("Download Report")
-        if st.button("Generate PDF Report"):
             try:
-                with st.spinner("Generating PDF report..."):
-                    # Prepare data for the report
-                    response = requests.post(
-                        "http://localhost:8000/reports/generate",
-                        json={
-                            "stock_data": research_output,
-                            "analysis_results": analysis_output,
-                            "llm_recommendations": final_output
-                        }
-                    )
+                # Step 1: Run dataset update check script
+                progress_text.text("Running dataset update check...")
+                progress_bar.progress(0)
+                dataset_script_path = "../backend/database/pipeline_dataset.py"
+                # Removed capture_output=True and text=True to allow output to go to terminal
+                subprocess.run(["python", dataset_script_path], check=True)
+                # Removed code to append and display captured output
+                progress_bar.progress(33)
+                progress_text.text("Dataset update check complete.")
+
+                # Step 2: Run main agent call script
+                progress_text.text("Running main agent call...")
+                agent_script_path = "../backend/agent_main_call.py"
+                # Pass symbols and user_pov as command-line arguments
+                # Note: The backend script is expected to save the results to crew_result.json
+                # Removed capture_output=True and text=True to allow output to go to terminal
+                subprocess.run(["python", agent_script_path, "--symbols", ",".join(symbols), "--user_pov", user_pov], check=True)
+                # Removed code to append and display captured output
+                progress_bar.progress(66)
+                progress_text.text("Main agent call complete.")
+
+                # Read the results from crew_result.json
+                progress_text.text("Reading results...")
+                results_file_path = "../backend/outputs/crew_result.json"
+                if os.path.exists(results_file_path):
+                    with open(results_file_path, "r") as f:
+                        loaded_data = json.load(f)
                     
-                    if response.status_code == 200:
-                        # Get PDF content from response
-                        pdf_content = response.content
-                        
-                        # Create download button
+                    # Ensure st.session_state.results is a dictionary
+                    # and place loaded_data appropriately.
+                    current_results_template = {"research": {}, "analysis": {}, "recommendations": [], "final": {}}
+                    if isinstance(st.session_state.results, dict):
+                        current_results_template.update(st.session_state.results)
+
+                    if isinstance(loaded_data, list):
+                        # If crew_result.json is just a list of recommendations
+                        current_results_template["recommendations"] = loaded_data
+                        st.session_state.results = current_results_template
+                    elif isinstance(loaded_data, dict):
+                        # If crew_result.json is a dict (hopefully with a "recommendations" key)
+                        st.session_state.results = loaded_data
+                    else:
+                        st.warning(f"Unexpected data type loaded from {results_file_path}. Expected dict or list. Resetting results.")
+                        st.session_state.results = {"research": {}, "analysis": {}, "final": {}} # Reset
+                    
+                    progress_bar.progress(75)
+                    progress_text.text("Results read.")
+                else:
+                    st.warning(f"Results file not found at {results_file_path}. Cannot display results.")
+                    st.session_state.results = {"research": {}, "analysis": {}, "recommendations": [], "final": {}} # Clear results if file not found
+                    progress_bar.progress(75)
+                    progress_text.text("Results file not found.")
+
+                # Step 3: Run PDF generation utility
+                # This step is now triggered by the "Download PDF Report" button
+                progress_bar.progress(100)
+                progress_text.text("Analysis pipeline completed!")
+                st.success("Analysis pipeline completed! Results are displayed below.")
+                st.session_state.run_triggered = False # Reset trigger after completion
+                st.rerun() # Rerun to show results and download button
+
+            except FileNotFoundError as e:
+                st.error(f"Error: Required file not found: {e}")
+                st.session_state.backend_output += f"Error: Required file not found: {e}\n"
+                backend_output_area.text_area("Backend Output", st.session_state.backend_output, height=300)
+                progress_text.empty()
+                progress_bar.empty()
+                st.session_state.run_triggered = False # Reset trigger on error
+            except subprocess.CalledProcessError as e:
+                st.error(f"Error executing backend script: {e}")
+                st.session_state.backend_output += f"Error executing backend script: {e}\nStderr: {e.stderr}\nStdout: {e.stdout}\n"
+                backend_output_area.text_area("Backend Output", st.session_state.backend_output, height=300)
+                progress_text.empty()
+                progress_bar.empty()
+                st.session_state.run_triggered = False # Reset trigger on error
+            except json.JSONDecodeError:
+                st.error("Error decoding JSON from crew_result.json. Ensure the backend script outputs valid JSON.")
+                st.session_state.backend_output += "Error decoding JSON from crew_result.json.\n"
+                backend_output_area.text_area("Backend Output", st.session_state.backend_output, height=300)
+                progress_text.empty()
+                progress_bar.empty()
+                st.session_state.run_triggered = False # Reset trigger on error
+            except Exception as e:
+                st.error(f"An unexpected error occurred: {str(e)}")
+                st.session_state.backend_output += f"An unexpected error occurred: {str(e)}\n"
+                backend_output_area.text_area("Backend Output", st.session_state.backend_output, height=300)
+                progress_text.empty()
+                progress_bar.empty()
+                st.session_state.run_triggered = False # Reset trigger on error
+
+
+    # Display results if available
+    st.write("Debug: st.session_state.results state:", st.session_state.results)
+    if st.session_state.results and "recommendations" in st.session_state.results:
+        recommendations = st.session_state.results.get("recommendations", []) # Use .get for safety
+
+        if recommendations:
+            st.header("Investment Recommendations")
+            for rec in recommendations:
+                ticker = rec.get("ticker", "N/A")
+                recommendation = rec.get("recommendation", "N/A")
+                reasoning = rec.get("reasoning", "No reasoning provided.")
+                forecast = rec.get("forecast", {})
+
+                st.subheader(f"{ticker}: {recommendation}")
+                st.markdown("**Reasoning:**")
+                st.write(reasoning)
+
+                if forecast:
+                    st.markdown("**Forecasts:**")
+                    if isinstance(forecast, dict): # Add check if forecast is a dictionary
+                        for model, data in forecast.items():
+                            st.write(f"- **{model}:**")
+                            if isinstance(data, dict): # Add check if data is a dictionary
+                                for metric, value in data.items():
+                                    if isinstance(value, float):
+                                        st.write(f"  - {metric}: {value:.2f}")
+                                    else:
+                                        st.write(f"  - {metric}: {value}")
+                            else:
+                                st.write(f"  - Details: {data}") # Display the string if not a dictionary
+                    else: # Handle case where forecast is not a dictionary
+                        st.write(f"  - Forecast data format unexpected: {forecast}")
+                else:
+                    st.info("No forecast data available for this ticker.")
+                st.markdown("---") # Separator for clarity
+        else:
+            st.info("No investment recommendations available.")
+
+        # Download Report Section
+        st.header("Download Report")
+
+        # Button to trigger PDF generation and download
+        if st.button("Download PDF Report"):
+            #st.write("Debug: st.session_state.results state:", st.session_state.results)
+            # Check if results are available before generating PDF
+            # Relaxing the condition to only check for recommendations for now
+            if not st.session_state.results or not st.session_state.results.get("recommendations"):
+                st.warning("Please run the analysis pipeline first to generate results before downloading the report.")
+                st.stop() # Stop execution if no results
+
+            st.info("Generating PDF report...")
+            st.write("Debug: Content of st.session_state.results before sending to backend:", st.session_state.results) # Added debug line
+            try:
+                # Assuming backend is running on http://localhost:8000
+                backend_url = "http://localhost:8000/reports/generate"
+                # Pass the results from the session state to the backend
+               # Construct the data payload for the backend
+                report_data = {
+                    "stock_data": st.session_state.results.get("research", {}), # Keep sending empty dict if not available
+                    "analysis_results": st.session_state.results.get("analysis", {}), # Keep sending empty dict if not available
+                    "llm_recommendations": {rec.get("ticker"): rec for rec in st.session_state.results.get("recommendations", []) if rec.get("ticker")}
+                }
+                response = requests.post(backend_url, json=report_data)
+
+                if response.status_code == 200:
+                    # Get filename from headers if available, otherwise use a default
+                    content_disposition = response.headers.get("Content-Disposition")
+                    if content_disposition:
+                        filename = content_disposition.split("filename=")[1].strip('"')
+                    else:
                         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                         filename = f"stock_analysis_report_{timestamp}.pdf"
-                        st.download_button(
-                            label="Download PDF Report",
-                            data=pdf_content,
-                            file_name=filename,
-                            mime="application/pdf"
-                        )
-                        st.success("PDF report generated successfully!")
-                    else:
-                        st.error("Failed to generate PDF report. Please try again.")
+
+                    st.download_button(
+                        label="Click here to download",
+                        data=response.content,
+                        file_name=filename,
+                        mime="application/pdf"
+                    )
+                    st.success("PDF report generated and ready for download.")
+                else:
+                    st.error(f"Error generating PDF report: {response.status_code} - {response.text}")
+            except requests.exceptions.ConnectionError:
+                st.error("Error connecting to the backend. Please ensure the backend is running.")
             except Exception as e:
-                st.error(f"Error generating PDF report: {str(e)}")
+                st.error(f"An unexpected error occurred during PDF generation: {str(e)}")
 
-        # Investment Proposals
-        st.header("Investment Proposals")
-        for symbol in final_output:
-            if "error" not in final_output[symbol]:
-                st.subheader(symbol)
-                st.markdown("**Rule-Based Recommendations**")
-                for rule in final_output[symbol]["rule_based"]:
-                    st.write(f"- {rule}")
-                st.markdown("**LLM Advice**")
-                st.markdown(final_output[symbol]["llm_advice"])
-            else:
-                st.warning(f"{symbol}: {final_output[symbol]['error']}")
 
-        # Download Results as JSON
+        # Download Raw Data
         st.header("Download Raw Data")
-        try:
-            with open("crew_result.json", "r") as f:
-                st.download_button(
-                    label="Download JSON Results",
-                    data=f,
-                    file_name="crew_result.json",
-                    mime="application/json"
-                )
-        except FileNotFoundError:
-            st.warning("Results file not found. Please run the analysis again.")
+        results_file_path = "../backend/outputs/crew_result.json" # Updated path
+        if os.path.exists(results_file_path):
+            try:
+                with open(results_file_path, "r") as f:
+                    st.download_button(
+                        label="Download JSON Results",
+                        data=f,
+                        file_name="crew_result.json",
+                        mime="application/json"
+                    )
+            except FileNotFoundError:
+                st.warning("Results file not found. Please run the analysis again.")
+        else:
+             st.info("Results file not found. Run the analysis pipeline to generate results.")
 
-    if not st.session_state.run_triggered:
-        st.info("Enter stock symbols and click 'Run Analysis' to view results.")
+
+    if not st.session_state.run_triggered and not st.session_state.get("final", {}):
+        st.info("Enter stock symbols and click 'Start Analysis Pipeline' to begin.")

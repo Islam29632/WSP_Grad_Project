@@ -1,0 +1,62 @@
+[
+  {
+    "ticker": "AMD",
+    "recommendation": "Hold",
+    "reasoning": "Due to the limited and simulated nature of the data, a conservative 'Hold' recommendation is advised. Further analysis with real-world data is crucial.",
+    "forecast": {
+      "LSTM": {
+        "predicted_price": 144.97752380371094,
+        "performance": "MSE: 0.0044"
+      },
+      "MLP": {
+        "predicted_price": 144.9010493905132,
+        "performance": "MSE: 0.0044"
+      }
+    }
+  },
+  {
+    "ticker": "AAPL",
+    "recommendation": "Hold",
+    "reasoning": "Due to the limited and simulated nature of the data, a conservative 'Hold' recommendation is advised. Further analysis with real-world data is crucial.",
+    "forecast": {
+      "LSTM": {
+        "predicted_price": 121.5537338256836,
+        "performance": "MSE: 0.0347"
+      },
+      "MLP": {
+        "predicted_price": 121.1238939867272,
+        "performance": "MSE: 0.0346"
+      }
+    }
+  },
+  {
+    "ticker": "MSFT",
+    "recommendation": "Hold",
+    "reasoning": "Due to the limited and simulated nature of the data, a conservative 'Hold' recommendation is advised. Further analysis with real-world data is crucial.",
+    "forecast": {
+      "LSTM": {
+        "predicted_price": 132.96475219726562,
+        "performance": "MSE: 0.0064"
+      },
+      "MLP": {
+        "predicted_price": 133.0835192189672,
+        "performance": "MSE: 0.0066"
+      }
+    }
+  },
+  {
+    "ticker": "GOOGL",
+    "recommendation": "Hold",
+    "reasoning": "Due to the limited and simulated nature of the data, a conservative 'Hold' recommendation is advised. Further analysis with real-world data is crucial.",
+    "forecast": {
+      "LSTM": {
+        "predicted_price": 144.91561889648438,
+        "performance": "MSE: 0.0334"
+      },
+      "MLP": {
+        "predicted_price": 144.96396471184568,
+        "performance": "MSE: 0.0328"
+      }
+    }
+  }
+]

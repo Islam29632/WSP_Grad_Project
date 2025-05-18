@@ -12,7 +12,8 @@ from pydantic import ConfigDict
 # Load API key from environment
 load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY")
-duckdb_file = "input\stock_data.db"  # Assuming you stored data here with the previous script
+#duckdb_file = "input\stock_data.db"  # Assuming you stored data here with the previous script
+duckdb_file = "input/stock_data.db"  # Assuming you stored data here with the previous script
 gemini_pro = "gemini/gemini-1.5-pro"  # has 15 requests limit per day
 gemini_flash = "gemini/gemini-2.0-flash"  # has 1500 requests limit per day
 

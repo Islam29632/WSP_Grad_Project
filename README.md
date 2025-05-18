@@ -84,6 +84,11 @@ The Streamlit app will be available at http://localhost:8501
 
 Note: Make sure to start the API server before running the Streamlit app, as the frontend depends on the API being available.
 
+3. Use this test user or sign up for a new user
+```bash
+username: sprints.ai
+password: f7sgnqrAbZwHezx
+```
 # Technical Documentations
 
 For detailed technical documentation about the authentication system, database structure, API endpoints, and security features, please refer to:

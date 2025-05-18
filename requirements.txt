@@ -23,3 +23,5 @@ langchain
 yfinance 
 tf-keras
 sentence-transformers
+duckdb
+kaggle
