@@ -17,7 +17,7 @@ local_loc = os.path.join(project_root, "backend", "database", "World-Stock-Price
 #Creating Class Collectorgent
 class ResearchAgent(Agent):
     def __init__(self):
-        gemini_llm = LLM(model="gemini/gemini-1.5-flash", api_key="AIzaSyDnxKYmz9BXTM3Vb0JmBFLgZmdGfDonlDc")
+        gemini_llm = LLM(model="gemini/gemini-1.5-flash", api_key=api_key)
         super().__init__(
             role="Stock Data Fetcher",
             goal="Fetch monthly stock data for multiple companies",
