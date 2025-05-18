@@ -25,6 +25,9 @@ graph TD
     G[Start Application] --> H[Start API Server];
     H --> I[Start Streamlit App];
     I --> E;
+    J[API Server];
+    E --> J;
+    J --> E;
 ```
 
 # Agents flowchart
@@ -40,6 +43,8 @@ graph TD
     E1 --> E;
     E2 --> E;
     E --> F[End];
+    G[API/Frontend];
+    E --> G;
 ```
 
 # Demonastration video
