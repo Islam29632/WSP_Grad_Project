@@ -1,10 +1,18 @@
 import json
 import os
+import pathlib
+import sys
 from crewai import Crew, Task, Agent
-from agents.DC_Agent import ResearchAgent
-from agents.data_processor_agent import DataProcessorAgent
-from agents.llm_recommendation_generator_and_rag import LLMRecommendationAgent
-from utils.agent_tools import *
+
+BASE_DIR = pathlib.Path(__file__).resolve().parents[1]
+BACKEND_DIR = BASE_DIR / "backend"
+sys.path.insert(0, str(BASE_DIR))
+
+from backend.agents.DC_Agent import ResearchAgent
+from backend.data_processor_agent import DataProcessorAgent
+from backend.llm_recommendation_generator_and_rag import LLMRecommendationAgent
+from backend.utils.agent_tools import *
+
 def create_crew(tickers, usr_pov):
     #Objects of the Agents
     research_agent  = ResearchAgent()
