@@ -109,12 +109,3 @@ def create_crew(tickers, usr_pov):
     print(f"Crew result saved to {output_file}")
 
     return process_task.output,forecast_task.output,final_output
-
-if __name__ == "__main__":
-    # Placeholder tickers for testing
-    #tickers = ["AAPL"]
-    tickers = ["AMD", "AAPL", "MSFT", "GOOGL"]
-    print(f"Running crew for tickers: {tickers}") # Added print statement
-    proc_result,forecast_result,crew_result = create_crew(tickers,"I’m a conservative investor looking for stable growth with low risk.")
-    print("Crew execution result:")
-    print(crew_result)
