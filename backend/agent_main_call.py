@@ -1,7 +1,7 @@
 import json
 import os
 from crewai import Crew, Task, Agent
-from agents.DC_Agent import Collectorgent
+from agents.DC_Agent import ResearchAgent
 from agents.data_processor_agent import DataProcessorAgent
 from agents.llm_recommendation_generator_and_rag import LLMRecommendationAgent
 from .utils.agent_tools import *
