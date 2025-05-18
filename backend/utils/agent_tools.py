@@ -3,7 +3,17 @@ import os
 from crewai.tools import tool
 from typing import Optional,List, Dict, Any
 import json
-from utils.data_processor import train_and_forecast
+import pathlib
+import sys
+from crewai import Crew, Task, Agent
+
+
+
+BASE_DIR = pathlib.Path(__file__).resolve().parents[1]
+BACKEND_DIR = BASE_DIR / "backend"
+sys.path.insert(0, str(BASE_DIR))
+from backend.utils.data_processor import train_and_forecast
+
 @tool("process_data")
 def preprocess( min_rows: int = 20) -> pd.DataFrame:
         """Preprocesses stock data by standardizing column names and ensuring a minimum number of rows."""
