@@ -19,8 +19,6 @@ from backend.models.mlp import build_mlp_model
 from backend.utils.cache_utils import load_cached_params, save_cached_params
 
 
-
-
 def inverse_scale_close_only(scaler, scaled_close):
     """
     Inverse-transform just the “close” column (assumed to be the first feature).
@@ -35,7 +33,7 @@ def get_first_trading_day_and_price(ticker, target_month="2025-01"):
     Return (<first_date>, <close_price>) for the *earliest* trading day in
     `target_month` for `ticker`. If none exists, returns (None, None).
     """
-    df = pd.read_csv("data/processed/cleaned_stock_data2.csv")
+    df = pd.read_csv("backend/data/processed/cleaned_stock_data.csv")
     df["date"] = pd.to_datetime(df["date"], utc=True)
 
     month_df = df[
@@ -77,7 +75,7 @@ def train_and_forecast(tickers=None, target_month="2025-01"):
         print(f"   • forecasting {target_date}")
 
         try:
-            # ---------- Prepare training sequences ----------
+
             X_lstm, _, y_train, _, lstm_scaler = generate_sequences(
                 ticker=ticker,
                 model_type="lstm",
@@ -92,7 +90,7 @@ def train_and_forecast(tickers=None, target_month="2025-01"):
             lstm_input_shape = X_lstm.shape[1:]
             mlp_input_shape = X_mlp.shape
 
-            # ---------- LSTM ----------
+
             if ticker in param_cache and "lstm" in param_cache[ticker]:
                 lstm_best = param_cache[ticker]["lstm"]
                 print("      ↳ loaded cached LSTM params")
@@ -109,7 +107,7 @@ def train_and_forecast(tickers=None, target_month="2025-01"):
             lstm_opt = Adam() if lstm_best["optimizer"] == "adam" else RMSprop()
 
             lstm_model = build_lstm_model(
-                lstm_best, lstm_input_shape
+                None, lstm_input_shape, lstm_best
             )
             lstm_model.compile(optimizer=lstm_opt, loss="mse")
             lstm_model.fit(
@@ -127,7 +125,7 @@ def train_and_forecast(tickers=None, target_month="2025-01"):
             lstm_mse = (lstm_forecast - actual_price) ** 2
             lstm_rmse = np.sqrt(lstm_mse)
 
-            # ---------- MLP ----------
+
             if ticker in param_cache and "mlp" in param_cache[ticker]:
                 mlp_best = param_cache[ticker]["mlp"]
                 print("      ↳ loaded cached MLP params")
@@ -144,13 +142,13 @@ def train_and_forecast(tickers=None, target_month="2025-01"):
             mlp_opt = Adam() if mlp_best["optimizer"] == "adam" else RMSprop()
 
             mlp_model = build_mlp_model(
-                mlp_best,mlp_input_shape
+                None, mlp_input_shape, mlp_best
             )
             mlp_model.compile(optimizer=mlp_opt, loss="mse")
             mlp_model.fit(
                 X_mlp,
                 y_train,
-                epochs=5,
+                epochs=10,
                 batch_size=mlp_best["batch_size"],
                 verbose=0
             )
@@ -162,7 +160,7 @@ def train_and_forecast(tickers=None, target_month="2025-01"):
             mlp_mse = (mlp_forecast - actual_price) ** 2
             mlp_rmse = np.sqrt(mlp_mse)
 
-            # ---------- Results ----------
+
             final_results[ticker] = {
                 "target_date": target_date,
                 "actual_price": actual_price,
@@ -181,13 +179,13 @@ def train_and_forecast(tickers=None, target_month="2025-01"):
         except Exception as e:
             print(f"Skipping {ticker} due to error: {e}")
 
-    # ---------- Persist cache & results ----------
+
     save_cached_params(param_cache)
 
-    os.makedirs("outputs", exist_ok=True)
-    out_file = f"outputs/forecast_results.json"
+    os.makedirs("backend/outputs", exist_ok=True)
+    out_file = f"backend/outputs/forecast_results.json"
     with open(out_file, "w") as f:
         json.dump(final_results, f, indent=4)
 
-    print(f"\n✅ Results saved to {out_file}")
+    print(f"\nResults saved to {out_file}")
     return final_results
