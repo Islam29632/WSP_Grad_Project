@@ -28,7 +28,7 @@ def get_first_trading_day_and_price(ticker, target_month="2025-01"):
     Return (<first_date>, <close_price>) for the *earliest* trading day in
     `target_month` for `ticker`. If none exists, returns (None, None).
     """
-    df = pd.read_csv("data/processed/cleaned_stock_data.csv")
+    df = pd.read_csv("data/processed/cleaned_stock_data2.csv")
     df["date"] = pd.to_datetime(df["date"], utc=True)
 
     month_df = df[
