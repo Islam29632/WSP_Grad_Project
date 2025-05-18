@@ -13,4 +13,3 @@ def build_lstm_model(trial, input_shape, params=None):
     model.add(Dense(1))  # Output layer
 
     return model
-
