@@ -4,6 +4,7 @@ from crewai import Crew, Task, Agent
 from agents.DC_Agent import Collectorgent
 from agents.data_processor_agent import DataProcessorAgent
 from agents.llm_recommendation_generator_and_rag import LLMRecommendationAgent
+from .utils.agent_tools import *
 def create_crew(tickers,usr_pov):
     #Objects of the Agents
     research_agent  = ResearchAgent()
