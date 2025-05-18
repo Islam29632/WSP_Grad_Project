@@ -9,8 +9,8 @@ BACKEND_DIR = BASE_DIR / "backend"
 sys.path.insert(0, str(BASE_DIR))
 
 from backend.agents.DC_Agent import ResearchAgent
-from backend.data_processor_agent import DataProcessorAgent
-from backend.llm_recommendation_generator_and_rag import LLMRecommendationAgent
+from backend.agents.data_processor_agent import DataProcessorAgent
+from backend.agents.llm_recommendation_generator_and_rag import LLMRecommendationAgent
 from backend.utils.agent_tools import *
 
 def create_crew(tickers, usr_pov):
