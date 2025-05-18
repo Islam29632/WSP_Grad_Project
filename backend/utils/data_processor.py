@@ -1,3 +1,5 @@
+import pathlib
+import sys
 import os
 import json
 from datetime import datetime
@@ -5,11 +7,16 @@ from numbers import Number
 import numpy as np
 import pandas as pd
 from tensorflow.keras.optimizers import Adam, RMSprop
-from utils.tuning import optimize_model
-from utils.sequence_generator import generate_sequences
-from models.lstm import build_lstm_model
-from models.mlp import build_mlp_model
-from utils.cache_utils import load_cached_params, save_cached_params
+
+BASE_DIR = pathlib.Path(__file__).resolve().parents[1]
+BACKEND_DIR = BASE_DIR / "backend"
+sys.path.insert(0, str(BASE_DIR))
+
+from backend.utils.tuning import optimize_model
+from backend.utils.sequence_generator import generate_sequences
+from backend.models.lstm import build_lstm_model
+from backend.models.mlp import build_mlp_model
+from backend.utils.cache_utils import load_cached_params, save_cached_params
 
 
 
