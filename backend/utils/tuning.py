@@ -10,6 +10,7 @@ sys.path.insert(0, str(BASE_DIR))
 from backend.models.lstm import build_lstm_model
 from backend.models.mlp import build_mlp_model
 
+
 def optimize_model(model_type, X_train, y_train, X_val, y_val):
     def objective(trial):
         batch_size = trial.suggest_categorical("batch_size", [16, 32, 64])
