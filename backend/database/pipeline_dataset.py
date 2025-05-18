@@ -1,47 +1,47 @@
-# This script downloads the specified Kaggle dataset using the Kaggle API.
+"""
+Download - or update - the World-Stock-Prices dataset from Kaggle.
+Falls back to the CLI if the user’s kaggle wheel is too old.
+"""
 
-import os
+import os, subprocess, shutil
 from dotenv import load_dotenv
+from kaggle.api.kaggle_api_extended import KaggleApi
 
 load_dotenv()
 
-# Set Kaggle credentials from environment variables before importing kaggle
-os.environ['KAGGLE_USERNAME'] = os.getenv('KAGGLE_USERNAME')
-os.environ['KAGGLE_KEY'] = os.getenv('KAGGLE_KEY')
+os.environ["KAGGLE_USERNAME"] = os.getenv("KAGGLE_USERNAME", "")
+os.environ["KAGGLE_KEY"]     = os.getenv("KAGGLE_KEY",     "")
 
-from kaggle.api.kaggle_api_extended import KaggleApi
+DATASET_ID = "nelgiriyewithana/world-stock-prices-daily-updating"
+DEST       = "backend/data/raw"
+os.makedirs(DEST, exist_ok=True)
 
-# Define the dataset identifier
-dataset_id = 'nelgiriyewithana/world-stock-prices-daily-updating'
-destination_path = './' # Download to the current directory
 
-def download_kaggle_dataset(dataset_id, path):
-    """
-    Downloads a Kaggle dataset to the specified path.
+def download_api():
+    api = KaggleApi()
+    api.authenticate()                                   # uses env vars
+    api.dataset_download_files(DATASET_ID, path=DEST, unzip=True)
 
-    Args:
-        dataset_id (str): The identifier of the Kaggle dataset.
-        path (str): The local path to download the dataset to.
-    """
-    print(f"Attempting to download dataset: {dataset_id}")
-    try:
-        api = KaggleApi()
-        # Authenticate using environment variables
-        api.set_config_value('username', os.getenv('KAGGLE_USERNAME'))
-        api.set_config_value('key', os.getenv('KAGGLE_KEY'))
-        api.dataset_download_files(dataset_id, path=path, unzip=True)
-        print(f"Dataset check for '{dataset_id}' complete. The latest version is already available locally.")
-    except Exception as e:
-        print(f"Error during dataset download attempt: {e}")
-        print("Please ensure you have the Kaggle API installed (`pip install kaggle`)")
-        print("and your kaggle.json credentials file is located at ~/.kaggle/kaggle.json")
+
+def download_cli():
+    if shutil.which("kaggle") is None:
+        raise RuntimeError("Kaggle CLI not found - run  pip install kaggle")
+    subprocess.run(
+        ["kaggle", "datasets", "download", "-d", DATASET_ID, "-p", DEST, "--unzip"],
+        check=True,
+    )
+
 
 if __name__ == "__main__":
-    # Ensure the destination directory exists
-    if not os.path.exists(destination_path):
-        os.makedirs(destination_path)
-        print(f"Created directory: {destination_path}")
+    print("⇣ Checking dataset on Kaggle …")
+    try:
+        download_api()
+        print("✓ Download via kaggle-API succeeded")
+    except AttributeError as e:                # very old wheel
+        print(f"API attr error → {e}  ➜ trying CLI")
+        download_cli()
+    except Exception as e:
+        print(f"API failed → {e}  ➜ trying CLI")
+        download_cli()
 
-    print("Checking for dataset updates...")
-    download_kaggle_dataset(dataset_id, destination_path)
-    print("Dataset check complete. The latest version is available.")
+    print("Dataset ready under", DEST)
