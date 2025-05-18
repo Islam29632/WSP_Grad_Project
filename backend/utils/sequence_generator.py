@@ -4,7 +4,7 @@ from sklearn.preprocessing import StandardScaler
 
 
 def generate_sequences(ticker, model_type, sequence_length=10, forecast_target_date=None):
-    df = pd.read_csv("data/processed/cleaned_stock_data2.csv")
+    df = pd.read_csv("backend/data/processed/cleaned_stock_data.csv")
     df = df[df['ticker'] == ticker].sort_values("date").reset_index(drop=True)
     df['date'] = pd.to_datetime(df['date'], utc=True)
 
