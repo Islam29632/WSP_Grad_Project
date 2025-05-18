@@ -4,7 +4,7 @@ import pandas as pd
 from crewai import Agent
 from crewai.llm import LLM
 from dotenv import load_dotenv
-from integration.utils.data_processor import train_and_forecast
+from utils.data_processor import train_and_forecast
 from typing import Optional
 
 # Load environment variables from .env

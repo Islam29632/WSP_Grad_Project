@@ -1,11 +1,11 @@
 import json
 import os
 from crewai import Crew, Task, Agent
-from agents.DC_Agent import Collectorgent
+from agents.DC_Agent import ResearchAgent
 from agents.data_processor_agent import DataProcessorAgent
 from agents.llm_recommendation_generator_and_rag import LLMRecommendationAgent
-from .utils.agent_tools import *
-def create_crew(tickers,usr_pov):
+from utils.agent_tools import *
+def create_crew(tickers, usr_pov):
     #Objects of the Agents
     research_agent  = ResearchAgent()
     processor_agent = DataProcessorAgent()
@@ -82,7 +82,7 @@ def create_crew(tickers,usr_pov):
 
     # Execute the pipeline
     print("Starting Crew execution...") # Added print statement
-    final_output = crew.kickoff(inputs={"tickers": symbols, "user_pov": usr_pov})
+    final_output = crew.kickoff(inputs={"tickers": tickers, "user_pov": usr_pov})
     print("Crew execution finished.") # Added print statement
 
     # Define the output directory and file path "../backend/outputs"
