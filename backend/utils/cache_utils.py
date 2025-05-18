@@ -1,7 +1,7 @@
 import os
 import json
 
-PARAM_CACHE_PATH = "outputs/cached_params.json"
+PARAM_CACHE_PATH = "backend/outputs/cached_params.json"
 
 def load_cached_params():
     if os.path.exists(PARAM_CACHE_PATH):
