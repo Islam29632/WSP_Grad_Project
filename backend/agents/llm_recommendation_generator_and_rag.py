@@ -100,9 +100,15 @@ class LLMRecommendationAgent(Agent):
             print(f"[yfinance Error] {e}")
             return {}
 
-    def generate_recommendations(self, forecast_data: dict, analysis_data: dict,
-                                 user_pov: str = "moderate investor") -> dict:
+    def generate_recommendations(self,user_pov: str = "moderate investor") -> dict:
         output = {}
+        with open("outputs/forecast_results.json") as f1, open("outputs/ticker_analysis.json") as f2:
+            forecast_data_u = json.load(f1)
+            forecast_data_u = json.load(f2)
+
+            # Filter data for our target tickers
+        forecast_data = {k: v for k, v in forecast_data_u.items() if k in tickers}
+        analysis_data = {k: v for k, v in forecast_data_u.items() if k in tickers}
 
         for symbol, forecast in forecast_data.items():
             analysis = analysis_data.get(symbol)
