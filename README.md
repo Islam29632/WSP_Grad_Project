@@ -44,7 +44,6 @@ graph TD
     E2 --> E;
     G[API/Frontend];
     E --> G;
-    G --> F[End];
 ```
 
 # Demonastration video
