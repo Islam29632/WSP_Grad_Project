@@ -42,9 +42,9 @@ graph TD
     E --> E2[Fetch Real-time Data yfinance];
     E1 --> E;
     E2 --> E;
-    E --> F[End];
     G[API/Frontend];
     E --> G;
+    G --> F[End];
 ```
 
 # Demonastration video
