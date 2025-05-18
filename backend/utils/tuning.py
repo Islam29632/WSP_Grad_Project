@@ -1,7 +1,14 @@
+import pathlib
+import sys
 import optuna
 from sklearn.metrics import mean_squared_error
-from models.lstm import build_lstm_model
-from models.mlp import build_mlp_model
+
+BASE_DIR = pathlib.Path(__file__).resolve().parents[1]
+BACKEND_DIR = BASE_DIR / "backend"
+sys.path.insert(0, str(BASE_DIR))
+
+from backend.models.lstm import build_lstm_model
+from backend.models.mlp import build_mlp_model
 
 def optimize_model(model_type, X_train, y_train, X_val, y_val):
     def objective(trial):
