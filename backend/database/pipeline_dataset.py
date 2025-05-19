@@ -6,6 +6,8 @@ Falls back to the CLI if the user’s kaggle wheel is too old.
 import os, subprocess, shutil
 from dotenv import load_dotenv
 from kaggle.api.kaggle_api_extended import KaggleApi
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
 
 load_dotenv()
 
