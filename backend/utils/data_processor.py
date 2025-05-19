@@ -33,14 +33,15 @@ def get_first_trading_day_and_price(ticker, target_month="2025-01"):
     Return (<first_date>, <close_price>) for the *earliest* trading day in
     `target_month` for `ticker`. If none exists, returns (None, None).
     """
-    #df = pd.read_csv("../backend/data/processed/cleaned_stock_data.csv")
     
-    data_file = BASE_DIR / "data" / "processed" / "cleaned_stock_data.csv"
+    #data_file = BASE_DIR / "data" / "processed" / "cleaned_stock_data.csv"
     
-    if not data_file.exists():
-        raise FileNotFoundError(f"Required data file not found: {data_file}")
+    #if not data_file.exists():
+        #raise FileNotFoundError(f"Required data file not found: {data_file}")
         
-    df = pd.read_csv(data_file)
+    #df = pd.read_csv(data_file)
+
+     df = pd.read_csv("../backend/data/processed/cleaned_stock_data.csv")
     
     df["date"] = pd.to_datetime(df["date"], utc=True)
 
