@@ -4,41 +4,49 @@ import os
 # import sys # Removed sys import
 from datetime import datetime
 from ..utils.report_generation.pdf_generator import generate_pdf_report
-from typing import Dict, Any
+from typing import Dict, Any, List # Added List import
 
 router = APIRouter()
 
 @router.post("/generate")
 async def generate_report(
-    stock_data: Dict[str, Dict[str, Any]],
-    analysis_results: Dict[str, Dict[str, Any]],
-    llm_recommendations: Dict[str, Dict[str, Any]]
+    raw_price_data_payload: List[Dict[str, Any]],
+    analysis_results_payload: Dict[str, Dict[str, Any]],
+    llm_recommendations_payload: Dict[str, Dict[str, Any]],
+    research_data_payload: Dict[str, Any], # Retained for now, though PDF won't use it
+    user_symbols_payload: List[str] # Added to receive user-selected symbols
 ):
     """
     Generate a PDF report for stock analysis
-    
+
     Parameters:
-    - stock_data: Dictionary containing historical stock data
-    - analysis_results: Dictionary containing analysis metrics and forecasts
-    - llm_recommendations: Dictionary containing LLM-generated recommendations
+    - raw_price_data_payload: List of dictionaries containing raw historical stock data.
+    - analysis_results_payload: Dictionary containing ticker-specific analysis metrics.
+    - llm_recommendations_payload: Dictionary containing LLM-generated recommendations.
+    - research_data_payload: Dictionary containing research data for stocks.
+    - user_symbols_payload: List of user-selected stock symbols.
     """
     try:
         # Create reports directory if it doesn't exist
         os.makedirs("reports", exist_ok=True)
-        
+
         # Generate unique filename
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"stock_analysis_report_{timestamp}.pdf"
         output_path = os.path.join("reports", filename)
-        
-        # Combine data into a single dictionary
+
+        # Combine data into a single dictionary for the PDF generator.
+        # The PDF generator expects specific keys.
         report_data_for_pdf_generation = {
-            "stock_data": stock_data,
-            "analysis_results": analysis_results,
-            "llm_recommendations": llm_recommendations
+            "raw_price_data": raw_price_data_payload,
+            "ticker_analysis": analysis_results_payload,
+            # "stock_data": research_data_payload, # This section will be removed from PDF
+            "analysis_results": analysis_results_payload,
+            "llm_recommendations": llm_recommendations_payload,
+            "user_symbols": user_symbols_payload, # Pass symbols to PDF generator
         }
         
-        # sys.stdout.write(f"STDOUT_WRITE DEBUG: In routes/reports.py, data for PDF: {report_data_for_pdf_generation}\\n") # Removed debug
+        # sys.stdout.write(f"STDOUT_WRITE DEBUG: In routes/reports.py, data for PDF: {report_data_for_pdf_generation}\\n")
         # sys.stdout.flush() # Removed debug
         
         # Generate the report bytes

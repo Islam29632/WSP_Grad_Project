@@ -19,7 +19,7 @@ api_key = os.getenv("GEMINI_API_KEY")
 #Creating Class Collectorgent
 class ResearchAgent(Agent):
     def __init__(self):
-        gemini_llm = LLM(model="gemini/gemini-1.5-flash", api_key=api_key)
+        gemini_llm = LLM(model="gemini/gemini-2.0-flash", api_key=api_key)
         super().__init__(
             role="Stock Data Fetcher",
             goal="Fetch monthly stock data for multiple companies",

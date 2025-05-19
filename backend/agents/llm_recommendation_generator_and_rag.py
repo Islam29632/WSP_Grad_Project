@@ -16,7 +16,7 @@ api_key = os.getenv("GEMINI_API_KEY")
 duckdb_file = "../backend/input/stock_data.db"
 
 gemini_pro = "gemini/gemini-1.5-pro"  # has 15 requests limit per day
-gemini_flash = "gemini/gemini-1.5-flash"  # has 1500 requests limit per day
+gemini_flash = "gemini/gemini-2.0-flash"  # has 1500 requests limit per day
 
 
 class LLMRecommendationAgent(Agent):

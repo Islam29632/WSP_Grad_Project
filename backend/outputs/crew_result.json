@@ -2,19 +2,75 @@
   {
     "ticker": "AAPL",
     "recommendation": "Hold",
-    "reasoning": "The LSTM model predicts a slightly higher price than the current actual price (244.12 vs 243.85) with low error metrics (MSE=0.075, RMSE=0.27), suggesting a relatively stable outlook. However, the MLP model's prediction is significantly higher (269.50) with considerably higher error metrics (MSE=657.79, RMSE=25.65), making its reliability questionable. Considering the cautious long-term growth investor profile, prioritizing lower risk, a 'Hold' recommendation is justified.  While the LSTM forecast shows potential for modest growth, the uncertainty introduced by the MLP's less reliable forecast and the relatively small difference between the current price and LSTM's prediction advise against a 'Buy' recommendation.  A 'Sell' is not warranted due to the overall stable outlook suggested by the more reliable LSTM model.",
+    "reasoning": "The LSTM model predicts a price close to the actual price, suggesting stability. While the MLP model forecasts a higher price, its higher RMSE indicates less reliability. Given the cautious long-term growth investment strategy, holding AAPL seems prudent.",
     "forecast": {
       "LSTM": {
-        "predicted_price": 244.12394081158334,
-        "mse": 0.07504022428415898,
-        "rmse": 0.2739347080677419,
-        "performance": "Slightly positive, low risk"
+        "target_date": "2025-01-02",
+        "actual_price": 243.8500061035156,
+        "predicted_price": 242.17041927917796,
+        "performance": {
+          "mse": 2.8210119004885756,
+          "rmse": 1.6795868243376333
+        }
       },
       "MLP": {
-        "predicted_price": 269.4973528972994,
-        "mse": 657.7863975606112,
-        "rmse": 25.647346793783782,
-        "performance": "Highly positive, high risk"
+        "target_date": "2025-01-02",
+        "actual_price": 243.8500061035156,
+        "predicted_price": 254.0710219702207,
+        "performance": {
+          "mse": 104.46916534743744,
+          "rmse": 10.221015866705102
+        }
+      }
+    }
+  },
+  {
+    "ticker": "AMD",
+    "recommendation": "Hold",
+    "reasoning": "Both LSTM and MLP models predict prices relatively close to the actual price. The very low RMSE for LSTM indicates a high level of accuracy. Holding AMD aligns with a cautious growth strategy, as the models suggest stable performance.",
+    "forecast": {
+      "LSTM": {
+        "target_date": "2025-01-02",
+        "actual_price": 120.62999725341795,
+        "predicted_price": 120.56444755944497,
+        "performance": {
+          "mse": 0.004296762379951716,
+          "rmse": 0.06554969397298294
+        }
+      },
+      "MLP": {
+        "target_date": "2025-01-02",
+        "actual_price": 120.62999725341795,
+        "predicted_price": 122.7161961724524,
+        "performance": {
+          "mse": 4.352225929780485,
+          "rmse": 2.0861989190344445
+        }
+      }
+    }
+  },
+  {
+    "ticker": "GOOGL",
+    "recommendation": "Hold",
+    "reasoning": "The LSTM model's prediction is very close to the actual price, with a low RMSE. The MLP model's prediction is further off, with a higher RMSE. For a cautious investor, the LSTM suggests stability, making 'Hold' the appropriate recommendation.",
+    "forecast": {
+      "LSTM": {
+        "target_date": "2025-01-02",
+        "actual_price": 189.42999267578125,
+        "predicted_price": 189.15632716414913,
+        "performance": {
+          "mse": 0.07489281225686857,
+          "rmse": 0.2736655116321174
+        }
+      },
+      "MLP": {
+        "target_date": "2025-01-02",
+        "actual_price": 189.42999267578125,
+        "predicted_price": 183.57028315038139,
+        "performance": {
+          "mse": 34.33619572206191,
+          "rmse": 5.859709525399865
+        }
       }
     }
   }

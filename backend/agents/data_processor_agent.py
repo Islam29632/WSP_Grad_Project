@@ -12,7 +12,7 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 class DataProcessorAgent(Agent):
     def __init__(self):
-        gemini_llm = LLM(model="gemini/gemini-1.5-flash", api_key=GEMINI_API_KEY)
+        gemini_llm = LLM(model="gemini/gemini-2.0-flash", api_key=GEMINI_API_KEY)
 
         super().__init__(
             role="Financial Data Analyst Agent",
