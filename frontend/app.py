@@ -15,6 +15,7 @@ import sys
 BASE_DIR = pathlib.Path(__file__).resolve().parents[1]
 BACKEND_DIR = BASE_DIR / "backend"
 sys.path.insert(0, str(BASE_DIR))
+sys.stdout.reconfigure(encoding='utf-8')
 
 
 from backend.agent_main_call import run_crew
