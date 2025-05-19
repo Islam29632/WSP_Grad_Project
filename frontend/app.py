@@ -125,7 +125,11 @@ if ss.run_triggered:
             st.stop()
 
         # Step-3: Load results from backend outputs
-        status.write("🔄 Loading and processing results...")
+        message_3 = st.empty()
+        message_3.write("🔄 Loading and processing results...")
+        t1 = time.time()
+        message_3.empty()
+        status.write(f"✔️ Loaded and processed results ({time.time()-t1:.1f}s)")
         try:
             with open(result_json_path) as f:
                 crew_data = json.load(f)
@@ -221,7 +225,7 @@ if ss.run_triggered:
         
         ss.results["recommendations"] = processed_recommendations
 
-        status.update(label="Pipeline completed", state="complete", expanded=False) # Collapse on completion
+        status.update(label="Pipeline completed", state="complete", expanded=True) # Collapse on completion
         ss.run_triggered = False # Crucial: set to False only after all steps inside are done
         st.success("Analysis complete – scroll for results.")
         # Do not call st.rerun() here, let Streamlit flow naturally
@@ -297,7 +301,7 @@ if ss.results["recommendations"]:
             st.write(rec.get("reasoning", "No reasoning provided."))
             if rec.get("forecast"): # Check if forecast key exists and is not empty/None
                 try:
-                    st.json(rec["forecast"], expanded=False) # Start collapsed
+                    st.json(rec["forecast"], expanded=True) # Start collapsed
                 except Exception as e:
                     st.warning(f"Could not display forecast for {rec['ticker']}: {e}")
             st.markdown("---")
