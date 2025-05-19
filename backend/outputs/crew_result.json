@@ -1,61 +1,20 @@
 [
   {
-    "ticker": "AMD",
-    "recommendation": "Hold",
-    "reasoning": "AMD exhibits high volatility (high standard deviation) compared to other stocks in the set. Given the forecast of moderate price increases, a cautious investor should hold existing positions but refrain from buying more until a more stable trend is established. The forecasts are positive, but limited data makes predictions unreliable. A cautious investor should see more data before buying.",
-    "forecast": {
-      "LSTM": {
-        "predicted_price": 160.0,
-        "performance": "Moderate growth potential, but high volatility."
-      },
-      "MLP": {
-        "predicted_price": 158.0,
-        "performance": "Similar to LSTM, showing moderate growth."
-      }
-    }
-  },
-  {
     "ticker": "AAPL",
     "recommendation": "Hold",
-    "reasoning": "AAPL also shows relatively high volatility. The forecasts indicate a moderate upward trend. As a cautious investor, it's best to hold the existing position. The negative mean daily return is a concern, suggesting a slight downward trend in the historical data, further supporting the hold recommendation for now.",
+    "reasoning": "The LSTM model predicts a slightly higher price than the current actual price (244.12 vs 243.85) with low error metrics (MSE=0.075, RMSE=0.27), suggesting a relatively stable outlook. However, the MLP model's prediction is significantly higher (269.50) with considerably higher error metrics (MSE=657.79, RMSE=25.65), making its reliability questionable. Considering the cautious long-term growth investor profile, prioritizing lower risk, a 'Hold' recommendation is justified.  While the LSTM forecast shows potential for modest growth, the uncertainty introduced by the MLP's less reliable forecast and the relatively small difference between the current price and LSTM's prediction advise against a 'Buy' recommendation.  A 'Sell' is not warranted due to the overall stable outlook suggested by the more reliable LSTM model.",
     "forecast": {
       "LSTM": {
-        "predicted_price": 155.0,
-        "performance": "Moderate growth, but watch for volatility."
+        "predicted_price": 244.12394081158334,
+        "mse": 0.07504022428415898,
+        "rmse": 0.2739347080677419,
+        "performance": "Slightly positive, low risk"
       },
       "MLP": {
-        "predicted_price": 153.0,
-        "performance": "Similar growth trend to LSTM."
-      }
-    }
-  },
-  {
-    "ticker": "MSFT",
-    "recommendation": "Buy",
-    "reasoning": "MSFT shows moderate volatility compared to AMD and AAPL, and the forecasts suggest a steady, positive trend. Considering the company's strong position in the software industry and forecasts of future growth, a cautious buy is warranted, especially if underweighted in a portfolio. The negative average daily return is not ideal but acceptable considering the overall positive forecasts. Compared to other stocks in the list, MSFT is a slightly better candidate for purchase due to more stable forecasts.",
-    "forecast": {
-      "LSTM": {
-        "predicted_price": 165.0,
-        "performance": "Steady growth and lower volatility."
-      },
-      "MLP": {
-        "predicted_price": 163.0,
-        "performance": "Confirms the steady growth trend."
-      }
-    }
-  },
-  {
-    "ticker": "GOOGL",
-    "recommendation": "Hold",
-    "reasoning": "GOOGL shows moderate volatility, and the forecasts suggest a positive trend. Given the one month of data, the recommendation is to hold. More evidence of predicted stability is needed to warrant a buy for a cautious investor.",
-    "forecast": {
-      "LSTM": {
-        "predicted_price": 157.0,
-        "performance": "Good growth potential but proceed with caution."
-      },
-      "MLP": {
-        "predicted_price": 155.0,
-        "performance": "Similar forecast to LSTM."
+        "predicted_price": 269.4973528972994,
+        "mse": 657.7863975606112,
+        "rmse": 25.647346793783782,
+        "performance": "Highly positive, high risk"
       }
     }
   }

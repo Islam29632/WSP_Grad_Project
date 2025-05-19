@@ -33,7 +33,15 @@ def get_first_trading_day_and_price(ticker, target_month="2025-01"):
     Return (<first_date>, <close_price>) for the *earliest* trading day in
     `target_month` for `ticker`. If none exists, returns (None, None).
     """
-    df = pd.read_csv("backend/data/processed/cleaned_stock_data.csv")
+    #df = pd.read_csv("../backend/data/processed/cleaned_stock_data.csv")
+    
+    data_file = BASE_DIR / "data" / "processed" / "cleaned_stock_data.csv"
+    
+    if not data_file.exists():
+        raise FileNotFoundError(f"Required data file not found: {data_file}")
+        
+    df = pd.read_csv(data_file)
+    
     df["date"] = pd.to_datetime(df["date"], utc=True)
 
     month_df = df[
@@ -55,6 +63,7 @@ def train_and_forecast(tickers=None, target_month="2025-01"):
     For each ticker, find the first trading day in `target_month`,
     train LSTM & MLP up to *but not including* that day, then forecast it.
     """
+    
     if tickers is None:
         tickers = ["AAPL", "MSFT"]
 
@@ -182,8 +191,8 @@ def train_and_forecast(tickers=None, target_month="2025-01"):
 
     save_cached_params(param_cache)
 
-    os.makedirs("backend/outputs", exist_ok=True)
-    out_file = f"backend/outputs/forecast_results.json"
+    os.makedirs("../backend/outputs", exist_ok=True)
+    out_file = f"../backend/outputs/forecast_results.json"
     with open(out_file, "w") as f:
         json.dump(final_results, f, indent=4)
 

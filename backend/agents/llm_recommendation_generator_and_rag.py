@@ -12,10 +12,11 @@ from pydantic import ConfigDict
 # Load API key from environment
 load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY")
-#duckdb_file = "input\stock_data.db"  # Assuming you stored data here with the previous script
-duckdb_file = "input/stock_data.db"  # Assuming you stored data here with the previous script
+
+duckdb_file = "../backend/input/stock_data.db"
+
 gemini_pro = "gemini/gemini-1.5-pro"  # has 15 requests limit per day
-gemini_flash = "gemini/gemini-2.0-flash"  # has 1500 requests limit per day
+gemini_flash = "gemini/gemini-1.5-flash"  # has 1500 requests limit per day
 
 
 class LLMRecommendationAgent(Agent):
@@ -102,7 +103,7 @@ class LLMRecommendationAgent(Agent):
 
     def generate_recommendations(self,user_pov: str = "moderate investor") -> dict:
         output = {}
-        with open("outputs/forecast_results.json") as f1, open("outputs/ticker_analysis.json") as f2:
+        with open("../backend/outputs/forecast_results.json") as f1, open("../backend/outputs/ticker_analysis.json") as f2:
             forecast_data_u = json.load(f1)
             forecast_data_u = json.load(f2)
 
@@ -140,32 +141,32 @@ class LLMRecommendationAgent(Agent):
             growth = analysis.get("growth_2020_percent", "N/A")
 
             prompt = f'''
-You're a trusted financial advisor helping an investor decide what to do with their {symbol} stock.
+                You're a trusted financial advisor helping an investor decide what to do with their {symbol} stock.
 
-**Stock Information (from yfinance)**:
-- Company: {yfinance_info.get('company_name')}
-- Sector: {sector}
-- Industry: {yfinance_info.get('industry')}
-- Current Price: {round(float(actual_price), 2) if actual_price != 'N/A' else 'N/A'}
-- Market Cap: {yfinance_info.get('market_cap')}
-- P/E Ratio: {yfinance_info.get('pe_ratio')}
-- 52-Week Range: {yfinance_info.get('52_week_low')} - {yfinance_info.get('52_week_high')}
+                **Stock Information (from yfinance)**:
+                - Company: {yfinance_info.get('company_name')}
+                - Sector: {sector}
+                - Industry: {yfinance_info.get('industry')}
+                - Current Price: {round(float(actual_price), 2) if actual_price != 'N/A' else 'N/A'}
+                - Market Cap: {yfinance_info.get('market_cap')}
+                - P/E Ratio: {yfinance_info.get('pe_ratio')}
+                - 52-Week Range: {yfinance_info.get('52_week_low')} - {yfinance_info.get('52_week_high')}
 
-**Technical Analysis**:
-- Current price: {round(float(actual_price), 2) if actual_price != 'N/A' else 'N/A'}
-- Forecasted range: {round(min(lstm_forecast, mlp_forecast), 2) if isinstance(lstm_forecast, (int, float)) and isinstance(mlp_forecast, (int, float)) else 'N/A'} to {round(max(lstm_forecast, mlp_forecast), 2) if isinstance(lstm_forecast, (int, float)) and isinstance(mlp_forecast, (int, float)) else 'N/A'}
-- Historical High: {high}
-- Historical Low: {low}
-- Growth during 2020: {growth}%
+                **Technical Analysis**:
+                - Current price: {round(float(actual_price), 2) if actual_price != 'N/A' else 'N/A'}
+                - Forecasted range: {round(min(lstm_forecast, mlp_forecast), 2) if isinstance(lstm_forecast, (int, float)) and isinstance(mlp_forecast, (int, float)) else 'N/A'} to {round(max(lstm_forecast, mlp_forecast), 2) if isinstance(lstm_forecast, (int, float)) and isinstance(mlp_forecast, (int, float)) else 'N/A'}
+                - Historical High: {high}
+                - Historical Low: {low}
+                - Growth during 2020: {growth}%
 
-{duckdb_context}
+                {duckdb_context}
 
-**Instructions**:
-1. Provide clear recommendation: **Buy**, **Hold**, or **Sell**
-2. Explain reasoning in 2-4 sentences
-3. Consider: price trends, valuation metrics, sector outlook, and historical data from DuckDB.
-4. Use simple, non-technical language.
-'''
+                **Instructions**:
+                1. Provide clear recommendation: **Buy**, **Hold**, or **Sell**
+                2. Explain reasoning in 2-4 sentences
+                3. Consider: price trends, valuation metrics, sector outlook, and historical data from DuckDB.
+                4. Use simple, non-technical language.
+            '''
 
             try:
                 model = genai.GenerativeModel(gemini_flash)

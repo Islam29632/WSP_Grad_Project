@@ -7,19 +7,18 @@ import pathlib
 import sys
 from crewai import Crew, Task, Agent
 
-
-
 BASE_DIR = pathlib.Path(__file__).resolve().parents[1]
 BACKEND_DIR = BASE_DIR / "backend"
 sys.path.insert(0, str(BASE_DIR))
 from backend.utils.data_processor import train_and_forecast
+
 
 @tool("process_data")
 def preprocess( min_rows: int = 20) -> pd.DataFrame:
         """Preprocesses stock data by standardizing column names and ensuring a minimum number of rows."""
 
         # Step 1: Standardize column names
-        df = pd.read_csv('backend/data/processed/cleaned_stock_data.csv')
+        df = pd.read_csv('../backend/data/processed/cleaned_stock_data.csv')
         df.columns = [col.strip().lower().replace(" ", "_") for col in df.columns]
         '''
         # Step 2: Filter for specific tickers
@@ -54,7 +53,7 @@ def preprocess( min_rows: int = 20) -> pd.DataFrame:
             ['date', 'ticker', 'open', 'high', 'low', 'close', 'volume', 'industry_tag', 'sma_5', 'sma_10', 'sma_21',
              'std_5', 'return']]
 
-        OUTPUT_PATH ='backend/data/processed/cleaned_stock_data.csv'
+        OUTPUT_PATH ='../backend/data/processed/cleaned_stock_data.csv'
         os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
         df.to_csv(OUTPUT_PATH, index=False)
         return df
@@ -62,7 +61,7 @@ def preprocess( min_rows: int = 20) -> pd.DataFrame:
 @tool("show_one")
 def show_ticker(tickers: list[str]) -> pd.DataFrame:
     """Fetches data for a list of specific tickers from the cleaned stock data."""
-    df = pd.read_csv('backend/data/processed/cleaned_stock_data.csv')
+    df = pd.read_csv('../backend/data/processed/cleaned_stock_data.csv')
     list_of_dfs = [] # Initialize an empty list to store DataFrames
     for ticker in tickers:
         ticker_df = df[df['ticker'] == ticker].copy()
@@ -80,18 +79,19 @@ def collect() -> pd.DataFrame:
         """Fetcnong stock data and taks the important rows."""
         # Initialize 'data' as an empty DataFrame
         data = pd.DataFrame()
-        df = pd.read_csv("backend/data/raw/World-Stock-Prices-Dataset.csv")
+        df = pd.read_csv("../backend/data/raw/World-Stock-Prices-Dataset.csv")
         data = df[['Industry_Tag', 'Date', 'Open', 'High', 'Low', 'Close', 'Volume','Ticker']].dropna()
-        OUTPUT_PATH ='backend/data/processed/cleaned_stock_data.csv'
+        OUTPUT_PATH ='../backend/data/processed/cleaned_stock_data.csv'
         os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
-        df.to_csv(OUTPUT_PATH, index=False)
+        #df.to_csv(OUTPUT_PATH, index=False) # This saves the original df, not the cleaned data
+        data.to_csv(OUTPUT_PATH, index=False) # Save the cleaned data
         return data
 
 @tool("generate_sector_map")
 def generate_sector_map() ->  pd.DataFrame:
     """Generates a mapping of stock tickers to their industry sectors and saves it to a JSON file."""
-    input_csv = "backend/data/processed/cleaned_stock_data.csv"
-    output_json = "backend/outputs/ticker_sector_map.json"
+    input_csv = "../backend/data/processed/cleaned_stock_data.csv"
+    output_json = "../backend/outputs/ticker_sector_map.json"
     df = pd.read_csv(input_csv)
     df.columns = [col.strip().lower().replace(" ", "_") for col in df.columns]
     df = df.dropna(subset=["ticker", "industry_tag"])
@@ -112,8 +112,8 @@ def generate_sector_map() ->  pd.DataFrame:
 def compute_statistics() -> pd.DataFrame:
     """Computes and saves sector and ticker statistics based on historical stock data and a sector map."""
     # Load and clean the CSV
-    input_csv = "backend/data/processed/cleaned_stock_data.csv"
-    sector_map_path = "backend/outputs/ticker_sector_map.json"
+    input_csv = "../backend/data/processed/cleaned_stock_data.csv"
+    sector_map_path = "../backend/outputs/ticker_sector_map.json"
     df = pd.read_csv(input_csv)
     df['date'] = pd.to_datetime(df['date'], utc=True)
     # Load sector mapping
@@ -149,8 +149,8 @@ def compute_statistics() -> pd.DataFrame:
 
     # Save to JSON
     os.makedirs("outputs", exist_ok=True)
-    summary_df.set_index("ticker").to_json("backend/outputs/ticker_analysis.json", indent=4, orient="index")
-    sector_summary.to_json("backend/outputs/sector_summary.json", indent=4, orient="records")
+    summary_df.set_index("ticker").to_json("../backend/outputs/ticker_analysis.json", indent=4, orient="index")
+    sector_summary.to_json("../backend/outputs/sector_summary.json", indent=4, orient="records")
     print("Sector and ticker statistics saved to outputs/")
     return sector_summary
 
@@ -164,7 +164,7 @@ def forecast_prices(tickers: Optional[list] = None) -> str:
     if not results:
         return "Forecasting failed or no tickers were processed."
 
-    output_path = "backend/outputs/forecast_results.json"
+    output_path = "../ackend/outputs/forecast_results.json"
     print(f"Forecasting complete for {len(results)} tickers. Results saved to {output_path}")
     return results
 

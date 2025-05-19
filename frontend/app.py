@@ -63,13 +63,13 @@ if ss.run_triggered:
         ss.run_triggered = False
         st.stop()
 
-    result_json_path = "backend/outputs/crew_result.json"
+    result_json_path = "../backend/outputs/crew_result.json"
 
     with st.status("Running analysis …", expanded=True) as status:
         # Step-1: Kaggle dataset check / download
         status.write("⇣ Checking Kaggle dataset …")
         t0 = time.time()
-        subprocess.run(["python", "backend/database/pipeline_dataset.py"], check=True)
+        subprocess.run(["python", "../backend/database/pipeline_dataset.py"], check=True)
         status.write(f"✓ Dataset ready ({time.time()-t0:.1f}s)")
 
         # Step-2: Crew pipeline (run directly from Python)
@@ -205,8 +205,8 @@ if st.button("Generate & download"):
 # │ 8. Raw JSON download                         │
 # ╰──────────────────────────────────────────────╯
 st.header("Download raw JSON")
-if os.path.exists("backend/outputs/crew_result.json"):
-    with open("backend/outputs/crew_result.json", "rb") as f:
+if os.path.exists("../backend/outputs/crew_result.json"):
+    with open("../backend/outputs/crew_result.json", "rb") as f:
         st.download_button("crew_result.json", f, mime="application/json")
 
 

@@ -13,7 +13,7 @@ os.environ["KAGGLE_USERNAME"] = os.getenv("KAGGLE_USERNAME", "")
 os.environ["KAGGLE_KEY"]     = os.getenv("KAGGLE_KEY",     "")
 
 DATASET_ID = "nelgiriyewithana/world-stock-prices-daily-updating"
-DEST       = "backend/data/raw"
+DEST       = "../backend/data/raw"
 os.makedirs(DEST, exist_ok=True)
 
 

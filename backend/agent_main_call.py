@@ -106,7 +106,7 @@ def run_crew(tickers: List[str], usr_pov: str):
     print("✅ Crew execution finished.")
 
     # Save result
-    output_dir = "backend/outputs"
+    output_dir = "../backend/outputs"
     os.makedirs(output_dir, exist_ok=True)
     output_file = os.path.join(output_dir, "crew_result.json")
 
