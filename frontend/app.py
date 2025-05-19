@@ -233,7 +233,7 @@ if ss.run_triggered:
 # ╭──────────────────────────────────────────────╮
 # │ 4. Display raw price data from CSV           │
 # ╰──────────────────────────────────────────────╯
-st.subheader("Raw price data from CSV")
+st.subheader("1. Raw price data from CSV")
 
 csv_display_path = "../backend/data/raw/World-Stock-Prices-Dataset.csv" # Use a different var name if needed
 try:
@@ -262,7 +262,7 @@ except Exception as e:
 # │ 5. Plot Price and Growth Analysis            │
 # ╰──────────────────────────────────────────────╯
 if ss.results.get("ticker_analysis") and isinstance(ss.results["ticker_analysis"], dict) and ss.results["ticker_analysis"]:
-    st.subheader("Highest/Lowest Price and Growth Percentage per Ticker")
+    st.subheader("2. Highest/Lowest Price and Growth Percentage per Ticker")
     analysis_data_display = ss.results["ticker_analysis"]
     plot_data_display = []
     
@@ -292,7 +292,7 @@ elif not ss.run_triggered and not any(ss.results.get(k) for k in ["recommendatio
 # ╭──────────────────────────────────────────────╮
 # │ 6. Recommendations                           │
 # ╰──────────────────────────────────────────────╯
-st.subheader("Investment recommendations")
+st.subheader("3. Investment recommendations")
 if ss.results["recommendations"]:
     for rec in ss.results["recommendations"]:
         # Ensure rec is a dictionary and has expected keys before trying to access them
@@ -312,24 +312,88 @@ else:
 
 
 # ╭──────────────────────────────────────────────╮
+# │ 6.1 Forecast vs. Actual Prices               │
+# ╰──────────────────────────────────────────────╯
+st.subheader("3.1 Forecast vs. Actual Prices")
+forecast_plot_json_path = "../backend/outputs/forecast_results.json"
+plot_forecast_data = []
+user_symbols_for_forecast_plot = [s.strip().upper() for s in symbols_str.split(",") if s.strip()]
+
+if os.path.exists(forecast_plot_json_path) and user_symbols_for_forecast_plot:
+    try:
+        with open(forecast_plot_json_path) as f_plot:
+            loaded_forecast_data = json.load(f_plot)
+
+        for ticker_symbol in user_symbols_for_forecast_plot:
+            if ticker_symbol in loaded_forecast_data:
+                data = loaded_forecast_data[ticker_symbol]
+                actual_price = data.get("actual_price")
+                lstm_forecast = data.get("LSTM", {}).get("forecast")
+                mlp_forecast = data.get("MLP", {}).get("forecast")
+
+                if actual_price is not None:
+                    plot_forecast_data.append({"Ticker": ticker_symbol, "Value Type": "Actual Price", "Price": actual_price})
+                if lstm_forecast is not None:
+                    plot_forecast_data.append({"Ticker": ticker_symbol, "Value Type": "LSTM Forecast", "Price": lstm_forecast})
+                if mlp_forecast is not None:
+                    plot_forecast_data.append({"Ticker": ticker_symbol, "Value Type": "MLP Forecast", "Price": mlp_forecast})
+            else:
+                st.caption(f"No forecast data found for {ticker_symbol} in {os.path.basename(forecast_plot_json_path)}.")
+        
+        if plot_forecast_data:
+            df_forecast_plot = pd.DataFrame(plot_forecast_data)
+            fig_forecast_plot = px.bar(df_forecast_plot, x="Ticker", y="Price", color="Value Type",
+                                       title="Forecast vs. Actual Prices by Ticker", barmode="group")
+            st.plotly_chart(fig_forecast_plot, use_container_width=True)
+        else:
+            st.info("No forecast data processed for the selected symbols to display the plot. Ensure the forecast file contains data for your selected symbols.")
+
+    except json.JSONDecodeError:
+        st.error(f"Error decoding {os.path.basename(forecast_plot_json_path)}. The file might be corrupted.")
+    except Exception as e:
+        st.error(f"An error occurred while preparing the forecast vs. actual prices plot: {e}")
+elif not user_symbols_for_forecast_plot:
+    st.info("Please enter stock symbols to see the forecast vs. actual prices plot.")
+else:
+    st.info(f"{os.path.basename(forecast_plot_json_path)} not found. Run the pipeline to generate forecast data.")
+
+
+# ╭──────────────────────────────────────────────╮
 # │ 7. PDF report download                       │
 # ╰──────────────────────────────────────────────╯
-st.header("Download PDF report")
+st.header("4. Download PDF report")
 
 if st.button("Generate PDF Report"):
     if not ss.results.get("recommendations") and not ss.results.get("raw_price_data") and not ss.results.get("ticker_analysis"):
         st.warning("No data available to generate a report. Please run the analysis pipeline first.")
         st.stop()
     
+    # Prepare forecast data for PDF payload
+    forecast_pdf_data = {}
+    forecast_data_path_for_pdf = "../backend/outputs/forecast_results.json" # Already defined above, ensure consistency
+    user_symbols_list_for_pdf = [s.strip().upper() for s in symbols_str.split(",") if s.strip()]
+
+    if os.path.exists(forecast_data_path_for_pdf):
+        try:
+            with open(forecast_data_path_for_pdf) as f_pdf:
+                loaded_forecast_pdf_data = json.load(f_pdf)
+            for sym in user_symbols_list_for_pdf:
+                if sym in loaded_forecast_pdf_data:
+                    forecast_pdf_data[sym] = loaded_forecast_pdf_data[sym]
+        except Exception as e:
+            st.warning(f"Could not load forecast data for PDF report: {e}")
+            # forecast_pdf_data will remain empty or partially filled
+
     try:
         backend_url = "http://localhost:8000/reports/generate" # Ensure backend is running at this address
-        user_symbols_list = [s.strip().upper() for s in symbols_str.split(",") if s.strip()]
+        user_symbols_list = [s.strip().upper() for s in symbols_str.split(",") if s.strip()] # Redundant if using user_symbols_list_for_pdf
         payload = {
             "raw_price_data_payload": ss.results.get("raw_price_data", []),
             "analysis_results_payload": ss.results.get("ticker_analysis", {}),
             "llm_recommendations_payload": {r["ticker"]: r for r in ss.results.get("recommendations", []) if isinstance(r, dict) and "ticker" in r},
-            "research_data_payload": ss.results.get("research", {}), # Will be removed from PDF, but keep for now in case other uses
-            "user_symbols_payload": user_symbols_list, # Add user-selected symbols
+            "research_data_payload": ss.results.get("research", {}), 
+            "user_symbols_payload": user_symbols_list,
+            "forecast_vs_actual_payload": forecast_pdf_data, # Add forecast data to payload
         }
         
         # Clean payload from NaN values
@@ -370,7 +434,7 @@ if ss.pdf_content and ss.pdf_filename:
 # ╭──────────────────────────────────────────────╮
 # │ 8. Raw JSON download                         │
 # ╰──────────────────────────────────────────────╯
-st.header("Download raw JSON output from Crew")
+st.header("5. Download raw JSON output from Crew")
 crew_output_path = "../backend/outputs/crew_result.json"
 if os.path.exists(crew_output_path):
     try:

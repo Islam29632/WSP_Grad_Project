@@ -5,6 +5,8 @@ __pycache__/
 
 # Local files
 /backend/Testing.py
+/backend/agent_main_call1.py
+/backend/agent_main_call2.py
 _Myfiles/
 .venv/
 venv/

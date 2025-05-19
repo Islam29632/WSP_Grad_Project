@@ -2,75 +2,57 @@
   {
     "ticker": "AAPL",
     "recommendation": "Hold",
-    "reasoning": "The LSTM model predicts a price close to the actual price, suggesting stability. While the MLP model forecasts a higher price, its higher RMSE indicates less reliability. Given the cautious long-term growth investment strategy, holding AAPL seems prudent.",
+    "reasoning": "For a cautious long-term growth investor, Apple presents a mixed picture. The LSTM model forecasts a price slightly below the actual price, while the MLP model predicts a higher price. Given the conflicting signals and the investor's risk aversion, a 'Hold' recommendation is prudent. Monitor future performance and model revisions.",
     "forecast": {
       "LSTM": {
         "target_date": "2025-01-02",
         "actual_price": 243.8500061035156,
-        "predicted_price": 242.17041927917796,
-        "performance": {
-          "mse": 2.8210119004885756,
-          "rmse": 1.6795868243376333
-        }
+        "predicted_price": 240.80037829293377,
+        "performance": "Slightly Underperforming"
       },
       "MLP": {
         "target_date": "2025-01-02",
         "actual_price": 243.8500061035156,
-        "predicted_price": 254.0710219702207,
-        "performance": {
-          "mse": 104.46916534743744,
-          "rmse": 10.221015866705102
-        }
+        "predicted_price": 259.0205064363517,
+        "performance": "Outperforming"
       }
     }
   },
   {
     "ticker": "AMD",
     "recommendation": "Hold",
-    "reasoning": "Both LSTM and MLP models predict prices relatively close to the actual price. The very low RMSE for LSTM indicates a high level of accuracy. Holding AMD aligns with a cautious growth strategy, as the models suggest stable performance.",
+    "reasoning": "AMD's forecast results are also mixed. The LSTM model predicts a higher price, but the MLP model is very close to the actual price, suggesting stability. Considering the cautious investor profile, a 'Hold' recommendation is advised. Continue to monitor AMD's performance and sector trends.",
     "forecast": {
       "LSTM": {
         "target_date": "2025-01-02",
         "actual_price": 120.62999725341795,
-        "predicted_price": 120.56444755944497,
-        "performance": {
-          "mse": 0.004296762379951716,
-          "rmse": 0.06554969397298294
-        }
+        "predicted_price": 128.27006019707784,
+        "performance": "Outperforming"
       },
       "MLP": {
         "target_date": "2025-01-02",
         "actual_price": 120.62999725341795,
-        "predicted_price": 122.7161961724524,
-        "performance": {
-          "mse": 4.352225929780485,
-          "rmse": 2.0861989190344445
-        }
+        "predicted_price": 120.98455383379223,
+        "performance": "Neutral"
       }
     }
   },
   {
     "ticker": "GOOGL",
-    "recommendation": "Hold",
-    "reasoning": "The LSTM model's prediction is very close to the actual price, with a low RMSE. The MLP model's prediction is further off, with a higher RMSE. For a cautious investor, the LSTM suggests stability, making 'Hold' the appropriate recommendation.",
+    "recommendation": "Buy",
+    "reasoning": "Both LSTM and MLP models forecast a price increase for GOOGL. Given this consensus and the long-term growth focus, a 'Buy' recommendation is warranted. However, the investor should proceed cautiously and monitor market conditions.",
     "forecast": {
       "LSTM": {
         "target_date": "2025-01-02",
         "actual_price": 189.42999267578125,
-        "predicted_price": 189.15632716414913,
-        "performance": {
-          "mse": 0.07489281225686857,
-          "rmse": 0.2736655116321174
-        }
+        "predicted_price": 191.39196004342895,
+        "performance": "Outperforming"
       },
       "MLP": {
         "target_date": "2025-01-02",
         "actual_price": 189.42999267578125,
-        "predicted_price": 183.57028315038139,
-        "performance": {
-          "mse": 34.33619572206191,
-          "rmse": 5.859709525399865
-        }
+        "predicted_price": 195.23705711169396,
+        "performance": "Outperforming"
       }
     }
   }

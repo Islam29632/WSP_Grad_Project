@@ -7,22 +7,23 @@
 <hr/>
 
 - [x] Dataset and Database (10 pts)
-- [x] Forecasting Accuracy (10 pts) in progress
+- [x] Forecasting Accuracy (10 pts)
 - [x] Streamlit Frontend: UI/UX (10 pts)
-- [x] PDF Report Generation (5 pts) in progress
-- [ ] bonus - RAG Simple Implementation  in progress
-- [ ] Presentation Video (–) in progress
+- [x] PDF Report Generation (5 pts)
+- [x] bonus - RAG Simple Implementation
+- [x] Presentation Video (–)
 
 <hr/>
 
 ## Final Deliverables
 - [x] User Authentication Module
 - [x] CrewAI Agents Suite
-- [ ] Automated Dataset Pipeline
+- [x] Automated Dataset Pipeline
 - [x] Analytics & Forecasting Reports
 - [x] Streamlit Web App
 - [x] PDF Report Generator
 - [x] Gemini API Integration
 - [ ] Deployment Artifacts (Streamlit & FastAPI URLs)
 - [x] GitHub Repository (structure, docs, commits)
-- [ ] Final Presentation Package (video + slides)
+- [x] Final Presentation (video)
+- [ ] Final Presentation (slides)
