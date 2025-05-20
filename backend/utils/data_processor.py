@@ -41,7 +41,7 @@ def get_first_trading_day_and_price(ticker, target_month="2025-01"):
         
     #df = pd.read_csv(data_file)
 
-     df = pd.read_csv("../backend/data/processed/cleaned_stock_data.csv")
+    df = pd.read_csv("../backend/data/processed/cleaned_stock_data.csv")
     
     df["date"] = pd.to_datetime(df["date"], utc=True)
 
